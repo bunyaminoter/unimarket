@@ -10,6 +10,7 @@ import 'package:unimarket/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:unimarket/features/home/viewmodel/home_viewmodel.dart';
 import 'package:unimarket/features/product/model/product_category.dart';
 import 'package:unimarket/features/product/widgets/product_card.dart';
+import 'package:unimarket/features/home/widgets/app_drawer.dart';
 
 /// Ana Sayfa Ekranı
 /// Ürün listesi, kategori filtreleri ve hızlı erişim kartları.
@@ -21,6 +22,7 @@ class HomeScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
@@ -117,40 +119,7 @@ class HomeScreen extends StatelessWidget {
                           style: theme.textTheme.bodyMedium,
                         ),
 
-                        const SizedBox(height: AppSizes.lg),
-
-                        // Hızlı Erişim Kartları
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _QuickActionCard(
-                                icon: Icons.add_circle_outline_rounded,
-                                label: 'İlan Ver',
-                                gradientColors: const [
-                                  AppColors.primary,
-                                  Color(0xFF8B5CF6),
-                                ],
-                                onTap: () => context.push(AppRoutes.addProduct),
-                              ),
-                            ),
-                            const SizedBox(width: AppSizes.md),
-                            Expanded(
-                              child: _QuickActionCard(
-                                icon: Icons.swap_horizontal_circle_outlined,
-                                label: 'Takas Et',
-                                gradientColors: const [
-                                  AppColors.secondary,
-                                  Color(0xFF0096B7),
-                                ],
-                                onTap: () {
-                                  // Sonraki faz: Sadece takasa açık ürünleri filtrele
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: AppSizes.xl),
+                        const SizedBox(height: AppSizes.md),
 
                         // Kategoriler başlığı
                         Row(
@@ -249,7 +218,7 @@ class HomeScreen extends StatelessWidget {
                           return ProductCard(
                             product: product,
                             onTap: () {
-                              // Sonraki faz: Ürün detayı
+                              context.push(AppRoutes.productDetail, extra: product);
                             },
                             onFavorite: () {
                               // Sonraki faz: Favoriye ekleme
@@ -273,62 +242,6 @@ class HomeScreen extends StatelessWidget {
 }
 
 // ── Yardımcı Widget'lar ─────────────────────────────────────
-
-class _QuickActionCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final List<Color> gradientColors;
-  final VoidCallback onTap;
-
-  const _QuickActionCard({
-    required this.icon,
-    required this.label,
-    required this.gradientColors,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: AppSizes.md, horizontal: AppSizes.sm),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: gradientColors,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-          boxShadow: [
-            BoxShadow(
-              color: gradientColors.first.withValues(alpha: 0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: Colors.white, size: AppSizes.iconLg),
-            const SizedBox(height: AppSizes.xs),
-            Text(
-              label,
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: AppSizes.fontMd,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class _CategoryChip extends StatelessWidget {
   final String label;

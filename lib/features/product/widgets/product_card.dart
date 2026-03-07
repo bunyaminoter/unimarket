@@ -42,7 +42,9 @@ class ProductCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Ürün Fotoğrafı
-            _ProductImage(product: product, onFavorite: onFavorite),
+            Expanded(
+              child: _ProductImage(product: product, onFavorite: onFavorite),
+            ),
 
             // Ürün Bilgileri
             Padding(
@@ -152,12 +154,10 @@ class _ProductImage extends StatelessWidget {
       borderRadius: const BorderRadius.vertical(
         top: Radius.circular(AppSizes.radiusLg),
       ),
-      child: AspectRatio(
-        aspectRatio: 1.0,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Fotoğraf
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Fotoğraf
             if (product.primaryImage != null)
               CachedNetworkImage(
                 imageUrl: product.primaryImage!,
@@ -249,7 +249,6 @@ class _ProductImage extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }

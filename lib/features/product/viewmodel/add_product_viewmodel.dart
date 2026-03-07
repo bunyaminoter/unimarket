@@ -4,6 +4,7 @@ import 'package:unimarket/features/product/model/product_category.dart';
 import 'package:unimarket/features/product/repository/product_repository.dart';
 import 'package:unimarket/models/product_model.dart';
 import 'package:unimarket/services/storage_service.dart';
+import 'package:unimarket/services/price_suggestion_service.dart';
 
 /// Add Product ViewModel
 ///
@@ -12,12 +13,15 @@ import 'package:unimarket/services/storage_service.dart';
 class AddProductViewModel extends ChangeNotifier {
   final ProductRepository _repository;
   final StorageService _storageService;
+  final PriceSuggestionService _priceSuggestionService;
 
   AddProductViewModel({
     ProductRepository? repository,
     StorageService? storageService,
+    PriceSuggestionService? priceSuggestionService,
   })  : _repository = repository ?? ProductRepository(),
-        _storageService = storageService ?? StorageService();
+        _storageService = storageService ?? StorageService(),
+        _priceSuggestionService = priceSuggestionService ?? PriceSuggestionService();
 
   // ── State ────────────────────────────────────────────────
   List<File> _selectedImages = [];
@@ -27,6 +31,11 @@ class AddProductViewModel extends ChangeNotifier {
   bool _isLoading = false;
   double _uploadProgress = 0.0;
   String? _errorMessage;
+
+  // Fiyat Önerisi State
+  bool _isSuggestingPrice = false;
+  double? _suggestedPrice;
+  String? _suggestedPriceError;
 
   // ── Getters ──────────────────────────────────────────────
   List<File> get selectedImages => _selectedImages;
@@ -39,6 +48,10 @@ class AddProductViewModel extends ChangeNotifier {
   bool get hasImages => _selectedImages.isNotEmpty;
   int get maxImages => 5;
   bool get canAddMoreImages => _selectedImages.length < maxImages;
+
+  bool get isSuggestingPrice => _isSuggestingPrice;
+  double? get suggestedPrice => _suggestedPrice;
+  String? get suggestedPriceError => _suggestedPriceError;
 
   // ── Fotoğraf Yönetimi ────────────────────────────────────
   void addImage(File image) {
@@ -84,6 +97,29 @@ class AddProductViewModel extends ChangeNotifier {
   void setTradeEligible(bool value) {
     _isTradeEligible = value;
     notifyListeners();
+  }
+
+  // ── Fiyat Önerisi ─────────────────────────────────────────
+  Future<void> fetchSuggestedPrice(String title) async {
+    if (title.trim().length < 3) return;
+
+    _isSuggestingPrice = true;
+    _suggestedPriceError = null;
+    _suggestedPrice = null;
+    notifyListeners();
+
+    try {
+      final price = await _priceSuggestionService.fetchSuggestedPrice(title);
+      _suggestedPrice = price; // null da olabilir (bulunamadı)
+      if (price == null) {
+        _suggestedPriceError = 'Bu ürün için piyasa fiyatı bulunamadı.';
+      }
+    } catch (e) {
+      _suggestedPriceError = e.toString().replaceAll("Exception: ", "");
+    } finally {
+      _isSuggestingPrice = false;
+      notifyListeners();
+    }
   }
 
   // ── Ürün Kaydetme ─────────────────────────────────────────
@@ -162,6 +198,9 @@ class AddProductViewModel extends ChangeNotifier {
     _isTradeEligible = false;
     _uploadProgress = 0.0;
     _errorMessage = null;
+    _suggestedPrice = null;
+    _suggestedPriceError = null;
+    _isSuggestingPrice = false;
     notifyListeners();
   }
 

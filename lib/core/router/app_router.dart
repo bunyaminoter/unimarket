@@ -6,6 +6,9 @@ import 'package:unimarket/features/auth/view/login_screen.dart';
 import 'package:unimarket/features/auth/view/register_screen.dart';
 import 'package:unimarket/features/profile/view/profile_screen.dart';
 import 'package:unimarket/features/product/view/add_product_screen.dart';
+import 'package:unimarket/features/product/view/product_detail_screen.dart';
+import 'package:unimarket/features/product/view/my_products_screen.dart';
+import 'package:unimarket/models/product_model.dart';
 
 /// Uygulama route isimleri.
 /// Tüm route'lar burada merkezi olarak tanımlıdır.
@@ -18,8 +21,9 @@ class AppRoutes {
   static const String home = '/home';
   static const String profile = '/profile';
   static const String addProduct = '/add-product';
+  static const String myProducts = '/my-products';
+  static const String productDetail = '/product/:id';
   // Sonraki fazlarda eklenecek route'lar:
-  // static const String productDetail = '/product/:id';
   // static const String chat = '/chat';
 }
 
@@ -135,6 +139,53 @@ class AppRouter {
             );
           },
         ),
+      ),
+
+      // ── My Products ───────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.myProducts,
+        name: 'myProducts',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const MyProductsScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1.0, 0.0), // Sağdan sola
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+
+      // ── Product Detail ────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.productDetail,
+        name: 'productDetail',
+        pageBuilder: (context, state) {
+          final product = state.extra as ProductModel;
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: ProductDetailScreen(initialProduct: product),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(1.0, 0.0), // Sağdan sola
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                )),
+                child: child,
+              );
+            },
+          );
+        },
       ),
     ],
 

@@ -27,6 +27,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
   final _tradeDescController = TextEditingController();
+  final _titleFocusNode = FocusNode();
   
   // ImagePicker instance
   final _pickerService = ImagePickerService();
@@ -37,7 +38,22 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _descriptionController.dispose();
     _priceController.dispose();
     _tradeDescController.dispose();
+    _titleFocusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Kullanıcı başlık girmeyi bitirip dışarı veya fiyat alanına tıkladığında
+    _titleFocusNode.addListener(() {
+      if (!_titleFocusNode.hasFocus) {
+        final text = _titleController.text.trim();
+        if (text.length >= 3) {
+          context.read<AddProductViewModel>().fetchSuggestedPrice(text);
+        }
+      }
+    });
   }
 
   Future<void> _pickImage(BuildContext context, AddProductViewModel vm) async {
@@ -125,6 +141,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       
                       AuthTextField(
                         controller: _titleController,
+                        focusNode: _titleFocusNode,
                         hintText: 'Ürün Başlığı (örn: iPhone 11 128GB)',
                         prefixIcon: Icons.title_rounded,
                         validator: (value) {
@@ -134,7 +151,63 @@ class _AddProductScreenState extends State<AddProductScreen> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: AppSizes.md),
+
+                      // -- Fiyat Önerisi UI --
+                      if (vm.isSuggestingPrice)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0, bottom: AppSizes.md),
+                          child: Row(
+                            children: [
+                              const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2)),
+                              const SizedBox(width: AppSizes.sm),
+                              Text('Piyasa fiyatı analiz ediliyor...', style: GoogleFonts.poppins(fontSize: AppSizes.fontXs, color: Colors.grey.shade600)),
+                            ],
+                          ),
+                        )
+                      else if (vm.suggestedPrice != null)
+                        Container(
+                          margin: const EdgeInsets.only(top: 8, bottom: AppSizes.md),
+                          padding: const EdgeInsets.symmetric(horizontal: AppSizes.sm, vertical: AppSizes.xs),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+                            border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.analytics_outlined, color: AppColors.primary, size: AppSizes.iconSm),
+                              const SizedBox(width: AppSizes.sm),
+                              Expanded(
+                                child: Text(
+                                  'Piyasa Ortalaması: ₺${vm.suggestedPrice}',
+                                  style: GoogleFonts.poppins(fontSize: AppSizes.fontSm, color: AppColors.primary, fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  _priceController.text = vm.suggestedPrice.toString();
+                                },
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                                  minimumSize: const Size(0, 30),
+                                  backgroundColor: AppColors.primary,
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: Text('Uygula', style: GoogleFonts.poppins(fontSize: AppSizes.fontXs)),
+                              )
+                            ],
+                          ),
+                        )
+                      else if (vm.suggestedPriceError != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4.0, bottom: AppSizes.md),
+                          child: Text(
+                            vm.suggestedPriceError!,
+                            style: GoogleFonts.poppins(fontSize: AppSizes.fontXs, color: AppColors.error),
+                          ),
+                        )
+                      else
+                        const SizedBox(height: AppSizes.md),
                       
                       AuthTextField(
                         controller: _priceController,

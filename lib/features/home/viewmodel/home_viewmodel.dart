@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:unimarket/features/product/model/product_category.dart';
 import 'package:unimarket/features/product/repository/product_repository.dart';
@@ -18,6 +19,7 @@ class HomeViewModel extends ChangeNotifier {
   ProductCategory? _selectedCategory;
   bool _isLoading = false;
   bool _isRefreshing = false;
+  bool _showOnlyTradeable = false;
   String? _errorMessage;
 
   // ── Getters ──────────────────────────────────────────────
@@ -27,27 +29,40 @@ class HomeViewModel extends ChangeNotifier {
   bool get isRefreshing => _isRefreshing;
   String? get errorMessage => _errorMessage;
   bool get hasProducts => _products.isNotEmpty;
+  bool get showOnlyTradeable => _showOnlyTradeable;
+
+  StreamSubscription<List<ProductModel>>? _productsSubscription;
+
+  @override
+  void dispose() {
+    _productsSubscription?.cancel();
+    super.dispose();
+  }
 
   // ── Ürünleri Yükle ────────────────────────────────────────
-  /// İlk yükleme veya kategori değişikliğinde çağrılır.
-  Future<void> loadProducts() async {
-    try {
-      _isLoading = true;
-      _errorMessage = null;
-      notifyListeners();
+  /// İlk yükleme veya kategori değişikliğinde çağrılır. (Offline-First)
+  void loadProducts() {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
 
-      _products = await _repository.getProducts(
-        category: _selectedCategory,
-        limit: 20,
-      );
-
-      _isLoading = false;
-      notifyListeners();
-    } catch (e) {
-      _isLoading = false;
-      _errorMessage = 'Ürünler yüklenirken hata oluştu.';
-      notifyListeners();
-    }
+    _productsSubscription?.cancel();
+    _productsSubscription = _repository.getProductsOfflineFirst(
+      category: _selectedCategory,
+      isTradeEligible: _showOnlyTradeable ? true : null,
+      limit: 20,
+    ).listen(
+      (productList) {
+        _products = productList;
+        _isLoading = false;
+        notifyListeners();
+      },
+      onError: (error) {
+        _isLoading = false;
+        _errorMessage = 'Ürünler yüklenirken hata oluştu.';
+        notifyListeners();
+      },
+    );
   }
 
   /// Pull-to-refresh ile yenileme.
@@ -56,8 +71,10 @@ class HomeViewModel extends ChangeNotifier {
       _isRefreshing = true;
       notifyListeners();
 
+      // Refresh anında sadece internetten çeker (doğrudan getProducts)
       _products = await _repository.getProducts(
         category: _selectedCategory,
+        isTradeEligible: _showOnlyTradeable ? true : null,
         limit: 20,
       );
 
@@ -80,6 +97,14 @@ class HomeViewModel extends ChangeNotifier {
     } else {
       _selectedCategory = category;
     }
+    notifyListeners();
+    loadProducts();
+  }
+
+  // ── Takas Filtreleme ──────────────────────────────────────
+  /// Takasa açık ürünleri filtreleme modunu açar / kapatır
+  void toggleTradeableFilter() {
+    _showOnlyTradeable = !_showOnlyTradeable;
     notifyListeners();
     loadProducts();
   }

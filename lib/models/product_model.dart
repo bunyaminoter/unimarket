@@ -68,11 +68,10 @@ class ProductModel extends Equatable {
     required this.updatedAt,
   });
 
-  /// Firestore'dan ProductModel oluşturur.
-  factory ProductModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+  /// Map üzerinden model oluşturur (Hive/Lokal Cache kullanımı için)
+  factory ProductModel.fromMap(Map<String, dynamic> data, String docId) {
     return ProductModel(
-      id: doc.id,
+      id: docId,
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       price: (data['price'] ?? 0.0).toDouble(),
@@ -88,9 +87,43 @@ class ProductModel extends Equatable {
       status: ProductStatus.fromString(data['status'] ?? 'active'),
       viewCount: data['viewCount'] ?? 0,
       favoriteCount: data['favoriteCount'] ?? 0,
-      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      updatedAt: (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      createdAt: data['createdAt'] is String 
+        ? DateTime.parse(data['createdAt']) 
+        : (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      updatedAt: data['updatedAt'] is String 
+        ? DateTime.parse(data['updatedAt']) 
+        : (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
+  }
+
+  /// Firestore'dan ProductModel oluşturur.
+  factory ProductModel.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return ProductModel.fromMap(data, doc.id);
+  }
+
+  /// Lokal depo (Hive) için JSON nesnesi oluşturur
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'price': price,
+      'category': category.name,
+      'condition': condition.name,
+      'images': images,
+      'sellerId': sellerId,
+      'sellerName': sellerName,
+      'sellerPhotoUrl': sellerPhotoUrl,
+      'isTradeEligible': isTradeEligible,
+      'tradeDescription': tradeDescription,
+      'location': location,
+      'status': status.name,
+      'viewCount': viewCount,
+      'favoriteCount': favoriteCount,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+    };
   }
 
   /// Firestore-uyumlu Map'e çevirir.

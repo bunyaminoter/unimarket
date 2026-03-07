@@ -7,6 +7,9 @@ import 'package:unimarket/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:unimarket/features/profile/viewmodel/profile_viewmodel.dart';
 import 'package:unimarket/features/home/viewmodel/home_viewmodel.dart';
 import 'package:unimarket/features/product/viewmodel/add_product_viewmodel.dart';
+import 'package:unimarket/features/product/viewmodel/product_detail_viewmodel.dart';
+import 'package:unimarket/features/product/viewmodel/my_products_viewmodel.dart';
+import 'package:unimarket/features/trade/viewmodel/trade_offer_viewmodel.dart';
 
 /// UniMarket Ana Uygulama Widget'ı
 ///
@@ -31,6 +34,15 @@ class UniMarketApp extends StatelessWidget {
 
         // Add Product ViewModel — ürün ekleme ekranı state yönetimi
         ChangeNotifierProvider(create: (_) => AddProductViewModel()),
+
+        // Product Detail ViewModel
+        ChangeNotifierProvider(create: (_) => ProductDetailViewModel()),
+        
+        // Trade Offer ViewModel
+        ChangeNotifierProvider(create: (_) => TradeOfferViewModel()),
+
+        // My Products ViewModel
+        ChangeNotifierProvider(create: (_) => MyProductsViewModel()),
       ],
       child: MaterialApp.router(
         // Uygulama bilgileri

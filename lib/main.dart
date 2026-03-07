@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:unimarket/app.dart';
 import 'package:unimarket/firebase_options.dart';
+import 'package:unimarket/services/hive_service.dart';
 
 /// UniMarket Uygulama Giriş Noktası
 ///
@@ -14,6 +15,9 @@ import 'package:unimarket/firebase_options.dart';
 /// 5. UniMarketApp widget'ı çalıştırılır
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Hive Başlat (Offline-First cache)
+  await HiveService.init();
 
 // Firebase başlat (Duplicate App hatasını önlemek için kontrol eklendi)
   try {

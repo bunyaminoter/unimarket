@@ -16,6 +16,7 @@ class AuthTextField extends StatefulWidget {
   final ValueChanged<String>? onFieldSubmitted;
   final bool enabled;
   final int maxLines;
+  final FocusNode? focusNode;
 
   const AuthTextField({
     super.key,
@@ -29,6 +30,7 @@ class AuthTextField extends StatefulWidget {
     this.onFieldSubmitted,
     this.enabled = true,
     this.maxLines = 1,
+    this.focusNode,
   });
 
   @override
@@ -42,6 +44,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
   Widget build(BuildContext context) {
     return TextFormField(
       controller: widget.controller,
+      focusNode: widget.focusNode,
       obscureText: widget.isPassword ? _obscureText : false,
       keyboardType: widget.keyboardType,
       validator: widget.validator,

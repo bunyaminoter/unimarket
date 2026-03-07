@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:unimarket/features/product/model/product_category.dart';
 import 'package:unimarket/models/product_model.dart';
+import 'package:unimarket/services/hive_service.dart';
 
 /// Product Repository
 ///
@@ -46,6 +48,7 @@ class ProductRepository {
     DocumentSnapshot? lastDocument,
     ProductCategory? category,
     String? sellerId,
+    bool? isTradeEligible,
   }) async {
     Query<Map<String, dynamic>> query = _productsCollection
         .where('status', isEqualTo: ProductStatus.active.name);
@@ -53,6 +56,11 @@ class ProductRepository {
     // Kategori filtresi
     if (category != null) {
       query = query.where('category', isEqualTo: category.name);
+    }
+
+    // Takas filtresi
+    if (isTradeEligible != null) {
+      query = query.where('isTradeEligible', isEqualTo: isTradeEligible);
     }
 
     // Satıcı filtresi
@@ -71,6 +79,53 @@ class ProductRepository {
     return snapshot.docs
         .map((doc) => ProductModel.fromFirestore(doc))
         .toList();
+  }
+
+  // ── Ürün Listeleme (Offline-First) ────────────────────────
+  /// Önce lokal önbellekten (Hive) ürünleri gösterip, arkaplanda
+  /// günceli Firestore üzerinden çeken Stream tabanlı sorgu.
+  Stream<List<ProductModel>> getProductsOfflineFirst({
+    int limit = 20,
+    ProductCategory? category,
+    bool? isTradeEligible,
+  }) async* {
+    // 1. Önce Cache'den oku (Hızlı UI)
+    var cached = HiveService.getCachedProducts(category: category);
+    if (isTradeEligible == true) {
+      cached = cached.where((p) => p.isTradeEligible).toList();
+    }
+    
+    if (cached.isNotEmpty) {
+      yield cached;
+    }
+
+    // 2. Ardından Firestore'dan çek (Gerçek Veri)
+    Query<Map<String, dynamic>> query = _productsCollection
+        .where('status', isEqualTo: ProductStatus.active.name)
+        .limit(limit);
+
+    if (category != null) {
+      query = query.where('category', isEqualTo: category.name);
+    }
+    
+    if (isTradeEligible != null) {
+      query = query.where('isTradeEligible', isEqualTo: isTradeEligible);
+    }
+
+    try {
+      final snapshot = await query.get();
+      final remoteProducts = snapshot.docs
+          .map((doc) => ProductModel.fromFirestore(doc))
+          .toList();
+
+      // 3. Çekilen güncel veriyi cache'e yaz
+      await HiveService.cacheProducts(remoteProducts, category: category);
+
+      // 4. Yeni veriyi tekrar UI'a bas
+      yield remoteProducts;
+    } catch (e) {
+      debugPrint('Firestore arka plan yükleme hatası: $e');
+    }
   }
 
   /// Aktif ürünleri gerçek zamanlı stream olarak dinler.
