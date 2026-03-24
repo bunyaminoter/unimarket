@@ -19,7 +19,7 @@ void main() async {
   // Hive Başlat (Offline-First cache)
   await HiveService.init();
 
-// Firebase başlat (Duplicate App hatasını önlemek için kontrol eklendi)
+  // Firebase başlat (Duplicate App hatasını önlemek için kontrol eklendi)
   try {
     if (Firebase.apps.isEmpty) {
       await Firebase.initializeApp(

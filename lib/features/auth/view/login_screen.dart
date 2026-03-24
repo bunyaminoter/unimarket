@@ -37,15 +37,14 @@ class _LoginScreenState extends State<LoginScreen>
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
-    );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.15),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero).animate(
+          CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
+        );
     _animController.forward();
   }
 
@@ -130,12 +129,12 @@ class _LoginScreenState extends State<LoginScreen>
                         height: 80,
                         decoration: BoxDecoration(
                           gradient: AppColors.primaryGradient,
-                          borderRadius:
-                              BorderRadius.circular(AppSizes.radiusXl),
+                          borderRadius: BorderRadius.circular(
+                            AppSizes.radiusXl,
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color:
-                                  AppColors.primary.withValues(alpha: 0.3),
+                              color: AppColors.primary.withValues(alpha: 0.3),
                               blurRadius: 20,
                               offset: const Offset(0, 8),
                             ),
@@ -187,8 +186,9 @@ class _LoginScreenState extends State<LoginScreen>
                         if (value == null || value.trim().isEmpty) {
                           return 'E-posta adresi gerekli.';
                         }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                            .hasMatch(value.trim())) {
+                        if (!RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        ).hasMatch(value.trim())) {
                           return 'Geçerli bir e-posta adresi girin.';
                         }
                         return null;
@@ -243,15 +243,14 @@ class _LoginScreenState extends State<LoginScreen>
                           return Container(
                             width: double.infinity,
                             padding: const EdgeInsets.all(AppSizes.md),
-                            margin:
-                                const EdgeInsets.only(bottom: AppSizes.md),
+                            margin: const EdgeInsets.only(bottom: AppSizes.md),
                             decoration: BoxDecoration(
                               color: AppColors.error.withValues(alpha: 0.1),
-                              borderRadius:
-                                  BorderRadius.circular(AppSizes.radiusMd),
+                              borderRadius: BorderRadius.circular(
+                                AppSizes.radiusMd,
+                              ),
                               border: Border.all(
-                                color:
-                                    AppColors.error.withValues(alpha: 0.3),
+                                color: AppColors.error.withValues(alpha: 0.3),
                               ),
                             ),
                             child: Row(
@@ -303,7 +302,8 @@ class _LoginScreenState extends State<LoginScreen>
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: AppSizes.md),
+                            horizontal: AppSizes.md,
+                          ),
                           child: Text(
                             'veya',
                             style: GoogleFonts.poppins(
@@ -328,8 +328,7 @@ class _LoginScreenState extends State<LoginScreen>
                       padding: const EdgeInsets.all(AppSizes.md),
                       decoration: BoxDecoration(
                         color: AppColors.info.withValues(alpha: 0.08),
-                        borderRadius:
-                            BorderRadius.circular(AppSizes.radiusMd),
+                        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
                         border: Border.all(
                           color: AppColors.info.withValues(alpha: 0.2),
                         ),

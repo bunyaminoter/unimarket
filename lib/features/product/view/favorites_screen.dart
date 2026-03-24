@@ -5,22 +5,22 @@ import 'package:provider/provider.dart';
 import 'package:unimarket/core/constants/app_colors.dart';
 import 'package:unimarket/core/constants/app_sizes.dart';
 import 'package:unimarket/core/router/app_router.dart';
-import 'package:unimarket/features/product/viewmodel/my_products_viewmodel.dart';
+import 'package:unimarket/features/product/viewmodel/favorites_viewmodel.dart';
 import 'package:unimarket/features/product/widgets/product_card.dart';
 
-class MyProductsScreen extends StatefulWidget {
-  const MyProductsScreen({super.key});
+class FavoritesScreen extends StatefulWidget {
+  const FavoritesScreen({super.key});
 
   @override
-  State<MyProductsScreen> createState() => _MyProductsScreenState();
+  State<FavoritesScreen> createState() => _FavoritesScreenState();
 }
 
-class _MyProductsScreenState extends State<MyProductsScreen> {
+class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MyProductsViewModel>().loadMyProducts();
+      context.read<FavoritesViewModel>().loadFavorites();
     });
   }
 
@@ -30,14 +30,14 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          'İlanlarım',
+          'Beğendiklerim',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
             fontSize: AppSizes.fontLg,
           ),
         ),
       ),
-      body: Consumer<MyProductsViewModel>(
+      body: Consumer<FavoritesViewModel>(
         builder: (context, vm, child) {
           if (vm.isLoading) {
             return const Center(
@@ -45,55 +45,24 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
             );
           }
 
-          if (vm.errorMessage != null) {
+          if (vm.favorites.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(
-                    Icons.error_outline,
-                    size: 48,
-                    color: AppColors.error,
-                  ),
-                  const SizedBox(height: AppSizes.sm),
-                  Text(
-                    vm.errorMessage!,
-                    style: const TextStyle(color: AppColors.error),
-                  ),
-                  const SizedBox(height: AppSizes.sm),
-                  ElevatedButton(
-                    onPressed: vm.loadMyProducts,
-                    child: const Text('Tekrar Dene'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (vm.myProducts.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.inventory_2_outlined,
+                    Icons.favorite_border_rounded,
                     size: 64,
-                    color: Colors.grey.shade400,
+                    color: AppColors.textHint,
                   ),
                   const SizedBox(height: AppSizes.md),
                   Text(
-                    'Henüz hiç ilan vermedin.',
+                    'Henüz bir ilan beğenmedin.',
                     style: GoogleFonts.poppins(
                       fontSize: AppSizes.fontLg,
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w500,
                     ),
-                  ),
-                  const SizedBox(height: AppSizes.xl),
-                  ElevatedButton.icon(
-                    onPressed: () => context.push(AppRoutes.addProduct),
-                    icon: const Icon(Icons.add_circle_outline_rounded),
-                    label: const Text('İlan Ver'),
                   ),
                 ],
               ),
@@ -101,7 +70,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
           }
 
           return RefreshIndicator(
-            onRefresh: vm.loadMyProducts,
+            onRefresh: vm.loadFavorites,
             color: AppColors.primary,
             child: GridView.builder(
               padding: const EdgeInsets.all(AppSizes.md),
@@ -111,19 +80,17 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                 crossAxisSpacing: AppSizes.md,
                 childAspectRatio: 0.7,
               ),
-              itemCount: vm.myProducts.length,
+              itemCount: vm.favorites.length,
               itemBuilder: (context, index) {
-                final product = vm.myProducts[index];
+                final product = vm.favorites[index];
                 return ProductCard(
                   product: product,
                   onTap: () {
-                    // Ürün detay sayfasına git
                     context.push(AppRoutes.productDetail, extra: product).then((
                       _,
                     ) {
-                      // Geri dönüldüğünde listeti yenile
                       if (context.mounted) {
-                        context.read<MyProductsViewModel>().loadMyProducts();
+                        context.read<FavoritesViewModel>().loadFavorites();
                       }
                     });
                   },

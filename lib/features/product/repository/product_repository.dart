@@ -12,7 +12,7 @@ class ProductRepository {
   final FirebaseFirestore _firestore;
 
   ProductRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _productsCollection =>
       _firestore.collection('products');
@@ -50,8 +50,10 @@ class ProductRepository {
     String? sellerId,
     bool? isTradeEligible,
   }) async {
-    Query<Map<String, dynamic>> query = _productsCollection
-        .where('status', isEqualTo: ProductStatus.active.name);
+    Query<Map<String, dynamic>> query = _productsCollection.where(
+      'status',
+      isEqualTo: ProductStatus.active.name,
+    );
 
     // Kategori filtresi
     if (category != null) {
@@ -76,9 +78,7 @@ class ProductRepository {
     query = query.limit(limit);
 
     final snapshot = await query.get();
-    return snapshot.docs
-        .map((doc) => ProductModel.fromFirestore(doc))
-        .toList();
+    return snapshot.docs.map((doc) => ProductModel.fromFirestore(doc)).toList();
   }
 
   // ── Ürün Listeleme (Offline-First) ────────────────────────
@@ -94,7 +94,7 @@ class ProductRepository {
     if (isTradeEligible == true) {
       cached = cached.where((p) => p.isTradeEligible).toList();
     }
-    
+
     if (cached.isNotEmpty) {
       yield cached;
     }
@@ -107,7 +107,7 @@ class ProductRepository {
     if (category != null) {
       query = query.where('category', isEqualTo: category.name);
     }
-    
+
     if (isTradeEligible != null) {
       query = query.where('isTradeEligible', isEqualTo: isTradeEligible);
     }
@@ -154,9 +154,7 @@ class ProductRepository {
         .where('sellerId', isEqualTo: userId)
         .get();
 
-    return snapshot.docs
-        .map((doc) => ProductModel.fromFirestore(doc))
-        .toList();
+    return snapshot.docs.map((doc) => ProductModel.fromFirestore(doc)).toList();
   }
 
   // ── Ürün Güncelleme ───────────────────────────────────────
@@ -170,7 +168,9 @@ class ProductRepository {
 
   /// Ürün durumunu günceller (aktif, satıldı, rezerve).
   Future<void> updateProductStatus(
-      String productId, ProductStatus status) async {
+    String productId,
+    ProductStatus status,
+  ) async {
     await _productsCollection.doc(productId).update({
       'status': status.name,
       'updatedAt': Timestamp.fromDate(DateTime.now()),
@@ -210,8 +210,6 @@ class ProductRepository {
         .limit(20)
         .get();
 
-    return snapshot.docs
-        .map((doc) => ProductModel.fromFirestore(doc))
-        .toList();
+    return snapshot.docs.map((doc) => ProductModel.fromFirestore(doc)).toList();
   }
 }

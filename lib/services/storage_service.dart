@@ -19,9 +19,11 @@ class StorageService {
     ValueChanged<double>? onProgress,
   }) async {
     try {
-      if (_imgBbApiKey.isEmpty || _imgBbApiKey == 'BURAYA_IMGBB_API_KEY_GELECEK') {
+      if (_imgBbApiKey.isEmpty ||
+          _imgBbApiKey == 'BURAYA_IMGBB_API_KEY_GELECEK') {
         throw Exception(
-            'ImgBB API Anahtarı bulunamadı! Lütfen sisteme ekleyin.');
+          'ImgBB API Anahtarı bulunamadı! Lütfen sisteme ekleyin.',
+        );
       }
 
       // ImgBB API Uç Noktası
@@ -33,7 +35,7 @@ class StorageService {
         'image',
         file.path,
       );
-      
+
       request.files.add(multipartFile);
 
       // Yükleme başlangıcı
@@ -49,7 +51,7 @@ class StorageService {
       // Sonucu kontrol et
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
-        
+
         // Başarı durumunda ImgBB'ye dönen direkt resim linki (.jpg/.png)
         final bool success = jsonResponse['success'] ?? false;
         if (success) {
@@ -78,7 +80,8 @@ class StorageService {
     for (int i = 0; i < files.length; i++) {
       final url = await uploadFile(
         file: files[i],
-        path: basePath, // ImgBB klasör gerektirmez, sadece API için bekletiliyor
+        path:
+            basePath, // ImgBB klasör gerektirmez, sadece API için bekletiliyor
         onProgress: (fileProgress) {
           if (onProgress != null) {
             // Örn: Toplam 3 dosya var. 1. dosya yüklenirken %33 vb. ilerleme gösterimi.

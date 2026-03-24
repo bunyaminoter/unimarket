@@ -4,13 +4,16 @@ import 'package:equatable/equatable.dart';
 /// Sohbet Odası Modeli
 class ChatModel extends Equatable {
   final String id;
+
   /// Sohbetteki kullanıcıların ID'leri
   final List<String> participants;
+
   /// İlgili ilan (opsiyonel, hangi ilan üzerinden mesajlaşıldığı bilinsin diye)
-  final String? productId; 
+  final String? productId;
   final String lastMessage;
   final String lastSenderId;
   final DateTime updatedAt;
+
   /// Okunmamış mesaj sayısı vb eklenebilir
 
   const ChatModel({
@@ -45,7 +48,14 @@ class ChatModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, participants, productId, lastMessage, lastSenderId, updatedAt];
+  List<Object?> get props => [
+    id,
+    participants,
+    productId,
+    lastMessage,
+    lastSenderId,
+    updatedAt,
+  ];
 }
 
 /// Mesaj Modeli

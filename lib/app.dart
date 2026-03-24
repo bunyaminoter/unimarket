@@ -9,7 +9,9 @@ import 'package:unimarket/features/home/viewmodel/home_viewmodel.dart';
 import 'package:unimarket/features/product/viewmodel/add_product_viewmodel.dart';
 import 'package:unimarket/features/product/viewmodel/product_detail_viewmodel.dart';
 import 'package:unimarket/features/product/viewmodel/my_products_viewmodel.dart';
+import 'package:unimarket/features/product/viewmodel/favorites_viewmodel.dart';
 import 'package:unimarket/features/trade/viewmodel/trade_offer_viewmodel.dart';
+import 'package:unimarket/features/chat/viewmodel/chat_viewmodel.dart';
 
 /// UniMarket Ana Uygulama Widget'ı
 ///
@@ -37,12 +39,19 @@ class UniMarketApp extends StatelessWidget {
 
         // Product Detail ViewModel
         ChangeNotifierProvider(create: (_) => ProductDetailViewModel()),
-        
+
         // Trade Offer ViewModel
         ChangeNotifierProvider(create: (_) => TradeOfferViewModel()),
 
         // My Products ViewModel
         ChangeNotifierProvider(create: (_) => MyProductsViewModel()),
+
+        // Favorites ViewModel
+        ChangeNotifierProvider(create: (_) => FavoritesViewModel()),
+
+        // Chat ViewModels
+        ChangeNotifierProvider(create: (_) => ChatListViewModel()),
+        ChangeNotifierProvider(create: (_) => ChatDetailViewModel()),
       ],
       child: MaterialApp.router(
         // Uygulama bilgileri

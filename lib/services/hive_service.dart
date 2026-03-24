@@ -5,8 +5,8 @@ import 'package:unimarket/models/product_model.dart';
 import 'package:unimarket/features/product/model/product_category.dart';
 
 /// Hive üzerinden lokal önbellekleme (Caching) servisi.
-/// 
-/// Offline-first deneyimi sunmak için ürünleri uygulama 
+///
+/// Offline-first deneyimi sunmak için ürünleri uygulama
 /// içine kaydeder ve internet olmasa bile anında yüklenmesini sağlar.
 class HiveService {
   static const String _productsBoxName = 'products_box';
@@ -18,12 +18,17 @@ class HiveService {
   }
 
   /// Ürünleri lokal veritabanına (caching) kaydeder.
-  static Future<void> cacheProducts(List<ProductModel> products, {ProductCategory? category}) async {
+  static Future<void> cacheProducts(
+    List<ProductModel> products, {
+    ProductCategory? category,
+  }) async {
     try {
       final box = Hive.box(_productsBoxName);
       // Kategoriye özel anahtar oluştur (Örn: products_all, products_books)
-      final key = category != null ? 'products_${category.name}' : 'products_all';
-      
+      final key = category != null
+          ? 'products_${category.name}'
+          : 'products_all';
+
       final jsonList = products.map((p) => p.toJson()).toList();
       await box.put(key, jsonEncode(jsonList));
     } catch (e) {
@@ -35,8 +40,10 @@ class HiveService {
   static List<ProductModel> getCachedProducts({ProductCategory? category}) {
     try {
       final box = Hive.box(_productsBoxName);
-      final key = category != null ? 'products_${category.name}' : 'products_all';
-      
+      final key = category != null
+          ? 'products_${category.name}'
+          : 'products_all';
+
       final String? jsonString = box.get(key);
       if (jsonString != null) {
         final List<dynamic> jsonList = jsonDecode(jsonString);

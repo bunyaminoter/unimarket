@@ -17,15 +17,19 @@ class PriceSuggestionService {
 
     try {
       // DummyJSON Public API (Arama ucu)
-      final uri = Uri.parse('https://dummyjson.com/products/search?q=${Uri.encodeComponent(query)}');
+      final uri = Uri.parse(
+        'https://dummyjson.com/products/search?q=${Uri.encodeComponent(query)}',
+      );
 
       // 10 saniyelik timeout süresi koyuyoruz
-      final response = await http.get(uri).timeout(
-        const Duration(seconds: 10),
-        onTimeout: () {
-          throw TimeoutException('API yanıt vermedi (Timeout).');
-        },
-      );
+      final response = await http
+          .get(uri)
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              throw TimeoutException('API yanıt vermedi (Timeout).');
+            },
+          );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -45,9 +49,10 @@ class PriceSuggestionService {
         }
 
         final averagePriceUsd = totalPriceUsd / products.length;
-        
+
         // TL'ye çevir ve yuvarla (Örn: 245.67 -> 245.0)
-        final averagePriceTry = (averagePriceUsd * _usdToTryRate).roundToDouble();
+        final averagePriceTry = (averagePriceUsd * _usdToTryRate)
+            .roundToDouble();
 
         return averagePriceTry;
       } else {
@@ -55,7 +60,9 @@ class PriceSuggestionService {
       }
     } on TimeoutException catch (_) {
       debugPrint('Fiyat önerisi timeout hatası.');
-      throw Exception('Bağlantı zaman aşımına uğradı. İnternetinizi kontrol edin.');
+      throw Exception(
+        'Bağlantı zaman aşımına uğradı. İnternetinizi kontrol edin.',
+      );
     } catch (e) {
       debugPrint('Fiyat önerisi alınırken hata: $e');
       throw Exception('Piyasa fiyatı alınamadı, daha sonra tekrar deneyin.');

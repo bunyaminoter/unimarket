@@ -106,8 +106,9 @@ class ProductCard extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.success.withValues(alpha: 0.1),
-                            borderRadius:
-                                BorderRadius.circular(AppSizes.radiusFull),
+                            borderRadius: BorderRadius.circular(
+                              AppSizes.radiusFull,
+                            ),
                             border: Border.all(
                               color: AppColors.success.withValues(alpha: 0.3),
                             ),
@@ -115,8 +116,11 @@ class ProductCard extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.swap_horiz_rounded,
-                                  color: AppColors.success, size: 12),
+                              Icon(
+                                Icons.swap_horiz_rounded,
+                                color: AppColors.success,
+                                size: 12,
+                              ),
                               const SizedBox(width: 2),
                               Text(
                                 'Takas',
@@ -158,97 +162,94 @@ class _ProductImage extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           // Fotoğraf
-            if (product.primaryImage != null)
-              CachedNetworkImage(
-                imageUrl: product.primaryImage!,
-                fit: BoxFit.cover,
-                placeholder: (_, _) => _ImagePlaceholder(),
-                errorWidget: (_, _, _) => _ImagePlaceholder(),
-              )
-            else
-              _ImagePlaceholder(),
+          if (product.primaryImage != null)
+            CachedNetworkImage(
+              imageUrl: product.primaryImage!,
+              fit: BoxFit.cover,
+              placeholder: (_, _) => _ImagePlaceholder(),
+              errorWidget: (_, _, _) => _ImagePlaceholder(),
+            )
+          else
+            _ImagePlaceholder(),
 
-            // Durum rozeti (satıldı / rezerve)
-            if (!product.isActive)
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.5),
-                ),
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSizes.md,
-                      vertical: AppSizes.xs,
-                    ),
-                    decoration: BoxDecoration(
-                      color: product.status == ProductStatus.sold
-                          ? AppColors.error
-                          : AppColors.warning,
-                      borderRadius: BorderRadius.circular(AppSizes.radiusSm),
-                    ),
-                    child: Text(
-                      product.status.label,
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
+          // Durum rozeti (satıldı / rezerve)
+          if (!product.isActive)
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.5),
               ),
-
-            // Favori butonu
-            Positioned(
-              top: AppSizes.sm,
-              right: AppSizes.sm,
-              child: GestureDetector(
-                onTap: onFavorite,
+              child: Center(
                 child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 4,
-                      ),
-                    ],
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSizes.md,
+                    vertical: AppSizes.xs,
                   ),
-                  child: const Icon(
-                    Icons.favorite_border_rounded,
-                    color: AppColors.accent,
-                    size: 18,
+                  decoration: BoxDecoration(
+                    color: product.status == ProductStatus.sold
+                        ? AppColors.error
+                        : AppColors.warning,
+                    borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+                  ),
+                  child: Text(
+                    product.status.label,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
             ),
 
-            // Kondisyon rozeti
-            Positioned(
-              top: AppSizes.sm,
-              left: AppSizes.sm,
+          // Favori butonu
+          Positioned(
+            top: AppSizes.sm,
+            right: AppSizes.sm,
+            child: GestureDetector(
+              onTap: onFavorite,
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 3,
-                ),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.9),
-                  borderRadius: BorderRadius.circular(AppSizes.radiusFull),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 4,
+                    ),
+                  ],
                 ),
-                child: Text(
-                  product.condition.label,
-                  style: GoogleFonts.poppins(
-                    fontSize: AppSizes.fontXs,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
+                child: const Icon(
+                  Icons.favorite_border_rounded,
+                  color: AppColors.accent,
+                  size: 18,
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+
+          // Kondisyon rozeti
+          Positioned(
+            top: AppSizes.sm,
+            left: AppSizes.sm,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.9),
+                borderRadius: BorderRadius.circular(AppSizes.radiusFull),
+              ),
+              child: Text(
+                product.condition.label,
+                style: GoogleFonts.poppins(
+                  fontSize: AppSizes.fontXs,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

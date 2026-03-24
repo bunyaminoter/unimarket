@@ -28,7 +28,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _priceController = TextEditingController();
   final _tradeDescController = TextEditingController();
   final _titleFocusNode = FocusNode();
-  
+
   // ImagePicker instance
   final _pickerService = ImagePickerService();
 
@@ -65,12 +65,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   void _handleSubmit() async {
     final vm = context.read<AddProductViewModel>();
-    
+
     // Fotoğraf kontrolü
     if (!vm.hasImages) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Lütfen en az bir fotoğraf ekleyin.', style: GoogleFonts.poppins()),
+          content: Text(
+            'Lütfen en az bir fotoğraf ekleyin.',
+            style: GoogleFonts.poppins(),
+          ),
           backgroundColor: AppColors.error,
         ),
       );
@@ -90,13 +93,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
         sellerName: user.displayName,
         sellerPhotoUrl: user.photoUrl,
         tradeDescription: vm.isTradeEligible ? _tradeDescController.text : null,
-        location: user.university, // Varsayılan konum olarak üniversiteyi kullan
+        location:
+            user.university, // Varsayılan konum olarak üniversiteyi kullan
       );
 
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('İlan başarıyla oluşturuldu!', style: GoogleFonts.poppins()),
+            content: Text(
+              'İlan başarıyla oluşturuldu!',
+              style: GoogleFonts.poppins(),
+            ),
             backgroundColor: AppColors.success,
           ),
         );
@@ -117,7 +124,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ),
       body: Consumer<AddProductViewModel>(
         builder: (context, vm, child) {
-          
           // Yükleme sırasında engelleme overlay'i
           return Stack(
             children: [
@@ -131,23 +137,29 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       // ── Fotoğraflar ─────────────────────────────
                       _SectionTitle(title: 'Fotoğraflar', isRequired: true),
                       const SizedBox(height: AppSizes.sm),
-                      _ImagePickerRow(vm: vm, onPick: () => _pickImage(context, vm)),
-                      
+                      _ImagePickerRow(
+                        vm: vm,
+                        onPick: () => _pickImage(context, vm),
+                      ),
+
                       const SizedBox(height: AppSizes.xl),
 
                       // ── Temel Bilgiler ────────────────────────
                       _SectionTitle(title: 'Temel Bilgiler', isRequired: true),
                       const SizedBox(height: AppSizes.md),
-                      
+
                       AuthTextField(
                         controller: _titleController,
                         focusNode: _titleFocusNode,
                         hintText: 'Ürün Başlığı (örn: iPhone 11 128GB)',
                         prefixIcon: Icons.title_rounded,
                         validator: (value) {
-                          if (value == null || value.trim().isEmpty) return 'Başlık zorunludur.';
-                          if (value.trim().length < 5) return 'En az 5 karakter olmalı.';
-                          if (value.trim().length > 50) return 'En fazla 50 karakter olabilir.';
+                          if (value == null || value.trim().isEmpty)
+                            return 'Başlık zorunludur.';
+                          if (value.trim().length < 5)
+                            return 'En az 5 karakter olmalı.';
+                          if (value.trim().length > 50)
+                            return 'En fazla 50 karakter olabilir.';
                           return null;
                         },
                       ),
@@ -155,100 +167,159 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       // -- Fiyat Önerisi UI --
                       if (vm.isSuggestingPrice)
                         Padding(
-                          padding: const EdgeInsets.only(top: 8.0, bottom: AppSizes.md),
+                          padding: const EdgeInsets.only(
+                            top: 8.0,
+                            bottom: AppSizes.md,
+                          ),
                           child: Row(
                             children: [
-                              const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2)),
+                              const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
                               const SizedBox(width: AppSizes.sm),
-                              Text('Piyasa fiyatı analiz ediliyor...', style: GoogleFonts.poppins(fontSize: AppSizes.fontXs, color: Colors.grey.shade600)),
+                              Text(
+                                'Piyasa fiyatı analiz ediliyor...',
+                                style: GoogleFonts.poppins(
+                                  fontSize: AppSizes.fontXs,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
                             ],
                           ),
                         )
                       else if (vm.suggestedPrice != null)
                         Container(
-                          margin: const EdgeInsets.only(top: 8, bottom: AppSizes.md),
-                          padding: const EdgeInsets.symmetric(horizontal: AppSizes.sm, vertical: AppSizes.xs),
+                          margin: const EdgeInsets.only(
+                            top: 8,
+                            bottom: AppSizes.md,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSizes.sm,
+                            vertical: AppSizes.xs,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(AppSizes.radiusSm),
-                            border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                            borderRadius: BorderRadius.circular(
+                              AppSizes.radiusSm,
+                            ),
+                            border: Border.all(
+                              color: AppColors.primary.withValues(alpha: 0.3),
+                            ),
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.analytics_outlined, color: AppColors.primary, size: AppSizes.iconSm),
+                              const Icon(
+                                Icons.analytics_outlined,
+                                color: AppColors.primary,
+                                size: AppSizes.iconSm,
+                              ),
                               const SizedBox(width: AppSizes.sm),
                               Expanded(
                                 child: Text(
                                   'Piyasa Ortalaması: ₺${vm.suggestedPrice}',
-                                  style: GoogleFonts.poppins(fontSize: AppSizes.fontSm, color: AppColors.primary, fontWeight: FontWeight.w600),
+                                  style: GoogleFonts.poppins(
+                                    fontSize: AppSizes.fontSm,
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                               TextButton(
                                 onPressed: () {
-                                  _priceController.text = vm.suggestedPrice.toString();
+                                  _priceController.text = vm.suggestedPrice
+                                      .toString();
                                 },
                                 style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 0,
+                                  ),
                                   minimumSize: const Size(0, 30),
                                   backgroundColor: AppColors.primary,
                                   foregroundColor: Colors.white,
                                 ),
-                                child: Text('Uygula', style: GoogleFonts.poppins(fontSize: AppSizes.fontXs)),
-                              )
+                                child: Text(
+                                  'Uygula',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: AppSizes.fontXs,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         )
                       else if (vm.suggestedPriceError != null)
                         Padding(
-                          padding: const EdgeInsets.only(top: 4.0, bottom: AppSizes.md),
+                          padding: const EdgeInsets.only(
+                            top: 4.0,
+                            bottom: AppSizes.md,
+                          ),
                           child: Text(
                             vm.suggestedPriceError!,
-                            style: GoogleFonts.poppins(fontSize: AppSizes.fontXs, color: AppColors.error),
+                            style: GoogleFonts.poppins(
+                              fontSize: AppSizes.fontXs,
+                              color: AppColors.error,
+                            ),
                           ),
                         )
                       else
                         const SizedBox(height: AppSizes.md),
-                      
+
                       AuthTextField(
                         controller: _priceController,
                         hintText: 'Fiyat (₺)',
                         prefixIcon: Icons.payments_outlined,
                         keyboardType: TextInputType.number,
                         validator: (value) {
-                          if (value == null || value.trim().isEmpty) return 'Fiyat zorunludur.';
-                          if (double.tryParse(value) == null) return 'Geçerli bir rakam girin.';
-                          if (double.parse(value) < 0) return 'Fiyat 0\'dan küçük olamaz.';
+                          if (value == null || value.trim().isEmpty)
+                            return 'Fiyat zorunludur.';
+                          if (double.tryParse(value) == null)
+                            return 'Geçerli bir rakam girin.';
+                          if (double.parse(value) < 0)
+                            return 'Fiyat 0\'dan küçük olamaz.';
                           return null;
                         },
                       ),
                       const SizedBox(height: AppSizes.md),
-                      
+
                       AuthTextField(
                         controller: _descriptionController,
                         hintText: 'Ürün Açıklaması',
                         prefixIcon: Icons.description_outlined,
                         maxLines: 4,
                         validator: (value) {
-                          if (value == null || value.trim().isEmpty) return 'Açıklama zorunludur.';
-                          if (value.trim().length < 20) return 'En az 20 karakter detay verin.';
+                          if (value == null || value.trim().isEmpty)
+                            return 'Açıklama zorunludur.';
+                          if (value.trim().length < 20)
+                            return 'En az 20 karakter detay verin.';
                           return null;
                         },
                       ),
-                      
+
                       const SizedBox(height: AppSizes.xl),
 
                       // ── Detaylar ───────────────────────────────
                       _SectionTitle(title: 'Detaylar', isRequired: true),
                       const SizedBox(height: AppSizes.md),
-                      
+
                       // Kategori Seçici
                       DropdownButtonFormField<ProductCategory>(
-                        decoration: _dropdownDecoration('Kategori', Icons.category_rounded),
+                        decoration: _dropdownDecoration(
+                          'Kategori',
+                          Icons.category_rounded,
+                        ),
                         initialValue: vm.selectedCategory,
                         items: ProductCategory.values.map((cat) {
                           return DropdownMenuItem(
                             value: cat,
-                            child: Text(cat.displayName, style: GoogleFonts.poppins()),
+                            child: Text(
+                              cat.displayName,
+                              style: GoogleFonts.poppins(),
+                            ),
                           );
                         }).toList(),
                         onChanged: (val) {
@@ -259,19 +330,25 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
                       // Durum Seçici
                       DropdownButtonFormField<ProductCondition>(
-                        decoration: _dropdownDecoration('Fiziksel Durum', Icons.info_outline_rounded),
+                        decoration: _dropdownDecoration(
+                          'Fiziksel Durum',
+                          Icons.info_outline_rounded,
+                        ),
                         initialValue: vm.selectedCondition,
                         items: ProductCondition.values.map((cond) {
                           return DropdownMenuItem(
                             value: cond,
-                            child: Text(cond.label, style: GoogleFonts.poppins()),
+                            child: Text(
+                              cond.label,
+                              style: GoogleFonts.poppins(),
+                            ),
                           );
                         }).toList(),
                         onChanged: (val) {
                           if (val != null) vm.setCondition(val);
                         },
                       ),
-                      
+
                       const SizedBox(height: AppSizes.xl),
 
                       // ── Takas Seçeneği ─────────────────────────
@@ -279,17 +356,33 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         padding: const EdgeInsets.all(AppSizes.sm),
                         decoration: BoxDecoration(
                           color: AppColors.success.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                          border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+                          borderRadius: BorderRadius.circular(
+                            AppSizes.radiusMd,
+                          ),
+                          border: Border.all(
+                            color: AppColors.success.withValues(alpha: 0.3),
+                          ),
                         ),
                         child: Column(
                           children: [
                             SwitchListTile(
-                              title: Text('Takasa Açık', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-                              subtitle: Text('Bu ürünü başka bir eşya ile takas edebilirim.', style: GoogleFonts.poppins(fontSize: AppSizes.fontXs)),
+                              title: Text(
+                                'Takasa Açık',
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              subtitle: Text(
+                                'Bu ürünü başka bir eşya ile takas edebilirim.',
+                                style: GoogleFonts.poppins(
+                                  fontSize: AppSizes.fontXs,
+                                ),
+                              ),
                               value: vm.isTradeEligible,
                               activeThumbColor: AppColors.success,
-                              activeTrackColor: AppColors.success.withValues(alpha: 0.3),
+                              activeTrackColor: AppColors.success.withValues(
+                                alpha: 0.3,
+                              ),
                               onChanged: vm.setTradeEligible,
                               contentPadding: EdgeInsets.zero,
                             ),
@@ -297,11 +390,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
                               const SizedBox(height: AppSizes.sm),
                               AuthTextField(
                                 controller: _tradeDescController,
-                                hintText: 'Ne tür eşyalarla takas düşünürsünüz?',
+                                hintText:
+                                    'Ne tür eşyalarla takas düşünürsünüz?',
                                 prefixIcon: Icons.swap_horiz_rounded,
                                 maxLines: 2,
                                 validator: (value) {
-                                  if (vm.isTradeEligible && (value == null || value.trim().isEmpty)) {
+                                  if (vm.isTradeEligible &&
+                                      (value == null || value.trim().isEmpty)) {
                                     return 'Takas beklentinizi yazın.';
                                   }
                                   return null;
@@ -320,7 +415,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                           padding: const EdgeInsets.only(bottom: AppSizes.md),
                           child: Text(
                             vm.errorMessage!,
-                            style: GoogleFonts.poppins(color: AppColors.error, fontSize: AppSizes.fontSm),
+                            style: GoogleFonts.poppins(
+                              color: AppColors.error,
+                              fontSize: AppSizes.fontSm,
+                            ),
                           ),
                         ),
 
@@ -331,7 +429,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         isLoading: vm.isLoading,
                         icon: Icons.rocket_launch_rounded,
                       ),
-                      
+
                       const SizedBox(height: 100), // Klavye için boşluk
                     ],
                   ),
@@ -352,26 +450,37 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const CircularProgressIndicator(color: AppColors.primary),
+                          const CircularProgressIndicator(
+                            color: AppColors.primary,
+                          ),
                           const SizedBox(height: AppSizes.md),
                           Text(
                             'İlan Yükleniyor...',
-                            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           const SizedBox(height: AppSizes.sm),
                           SizedBox(
                             width: 200,
                             child: LinearProgressIndicator(
                               value: vm.uploadProgress,
-                              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                              backgroundColor: AppColors.primary.withValues(
+                                alpha: 0.1,
+                              ),
                               color: AppColors.primary,
-                              borderRadius: BorderRadius.circular(AppSizes.radiusFull),
+                              borderRadius: BorderRadius.circular(
+                                AppSizes.radiusFull,
+                              ),
                             ),
                           ),
                           const SizedBox(height: AppSizes.xs),
                           Text(
                             '%${(vm.uploadProgress * 100).toInt()}',
-                            style: GoogleFonts.poppins(fontSize: AppSizes.fontXs, color: AppColors.textSecondary),
+                            style: GoogleFonts.poppins(
+                              fontSize: AppSizes.fontXs,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                         ],
                       ),
@@ -391,7 +500,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
       prefixIcon: Icon(icon, color: AppColors.textHint, size: AppSizes.iconMd),
       filled: true,
       fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: AppSizes.md, vertical: 16),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.md,
+        vertical: 16,
+      ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppSizes.radiusMd),
         borderSide: BorderSide(color: Colors.grey.shade300),
@@ -429,7 +541,10 @@ class _SectionTitle extends StatelessWidget {
         ),
         if (isRequired) ...[
           const SizedBox(width: 4),
-          Text('*', style: TextStyle(color: AppColors.error, fontSize: AppSizes.fontLg)),
+          Text(
+            '*',
+            style: TextStyle(color: AppColors.error, fontSize: AppSizes.fontLg),
+          ),
         ],
       ],
     );
@@ -462,14 +577,25 @@ class _ImagePickerRow extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                      border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.add_a_photo_outlined, color: AppColors.primary),
+                        const Icon(
+                          Icons.add_a_photo_outlined,
+                          color: AppColors.primary,
+                        ),
                         const SizedBox(height: 4),
-                        Text('Ekle', style: GoogleFonts.poppins(fontSize: AppSizes.fontXs, color: AppColors.primary)),
+                        Text(
+                          'Ekle',
+                          style: GoogleFonts.poppins(
+                            fontSize: AppSizes.fontXs,
+                            color: AppColors.primary,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -484,10 +610,14 @@ class _ImagePickerRow extends StatelessWidget {
                       margin: const EdgeInsets.only(right: AppSizes.sm),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                        border: isFirst ? Border.all(color: AppColors.primary, width: 2) : null,
+                        border: isFirst
+                            ? Border.all(color: AppColors.primary, width: 2)
+                            : null,
                       ),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(AppSizes.radiusMd - (isFirst ? 2 : 0)),
+                        borderRadius: BorderRadius.circular(
+                          AppSizes.radiusMd - (isFirst ? 2 : 0),
+                        ),
                         child: Image.file(entry.value, fit: BoxFit.cover),
                       ),
                     ),
@@ -499,8 +629,15 @@ class _ImagePickerRow extends StatelessWidget {
                         onTap: () => vm.removeImage(entry.key),
                         child: Container(
                           padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.6), shape: BoxShape.circle),
-                          child: const Icon(Icons.close_rounded, color: Colors.white, size: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.6),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.close_rounded,
+                            color: Colors.white,
+                            size: 12,
+                          ),
                         ),
                       ),
                     ),
@@ -510,9 +647,22 @@ class _ImagePickerRow extends StatelessWidget {
                         bottom: 4,
                         left: 4,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(4)),
-                          child: Text('Kapak', style: GoogleFonts.poppins(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold)),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            'Kapak',
+                            style: GoogleFonts.poppins(
+                              fontSize: 10,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                   ],
@@ -524,7 +674,10 @@ class _ImagePickerRow extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           'En fazla ${vm.maxImages} fotoğraf ekleyebilirsiniz. İlk fotoğraf kapak olur.',
-          style: GoogleFonts.poppins(fontSize: AppSizes.fontXs, color: AppColors.textHint),
+          style: GoogleFonts.poppins(
+            fontSize: AppSizes.fontXs,
+            color: AppColors.textHint,
+          ),
         ),
       ],
     );

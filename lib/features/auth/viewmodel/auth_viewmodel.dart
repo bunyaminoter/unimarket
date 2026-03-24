@@ -6,11 +6,11 @@ import 'package:unimarket/models/user_model.dart';
 
 /// Auth durumu enum'ı.
 enum AuthStatus {
-  initial,      // Başlangıç — henüz kontrol yapılmadı
-  loading,      // İşlem devam ediyor
-  authenticated,    // Giriş yapılmış
-  unauthenticated,  // Giriş yapılmamış
-  error,        // Hata oluştu
+  initial, // Başlangıç — henüz kontrol yapılmadı
+  loading, // İşlem devam ediyor
+  authenticated, // Giriş yapılmış
+  unauthenticated, // Giriş yapılmamış
+  error, // Hata oluştu
 }
 
 /// Auth ViewModel
@@ -22,7 +22,7 @@ class AuthViewModel extends ChangeNotifier {
   final AuthRepository _authRepository;
 
   AuthViewModel({AuthRepository? authRepository})
-      : _authRepository = authRepository ?? AuthRepository() {
+    : _authRepository = authRepository ?? AuthRepository() {
     // Auth state değişikliklerini dinle
     _authStateSubscription = _authRepository.authStateChanges.listen(
       _onAuthStateChanged,
@@ -49,8 +49,9 @@ class AuthViewModel extends ChangeNotifier {
       _user = null;
     } else {
       try {
-        final userModel =
-            await _authRepository.getUserProfile(firebaseUser.uid);
+        final userModel = await _authRepository.getUserProfile(
+          firebaseUser.uid,
+        );
         if (userModel != null) {
           _user = userModel;
           _status = AuthStatus.authenticated;
@@ -100,10 +101,7 @@ class AuthViewModel extends ChangeNotifier {
   }
 
   // ── E-posta ile Giriş ────────────────────────────────────
-  Future<bool> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<bool> login({required String email, required String password}) async {
     try {
       _status = AuthStatus.loading;
       _errorMessage = null;

@@ -51,7 +51,7 @@ class TradeOfferModel extends Equatable {
   // Teklif Ettiğimiz (Kendi) Ürünümüz
   final String offererId;
   final String offeredProductId;
-  
+
   final String? message;
   final TradeStatus status;
   final DateTime createdAt;
@@ -123,14 +123,14 @@ class TradeOfferModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        targetProductId,
-        targetUserId,
-        offererId,
-        offeredProductId,
-        message,
-        status,
-        createdAt,
-        updatedAt,
-      ];
+    id,
+    targetProductId,
+    targetUserId,
+    offererId,
+    offeredProductId,
+    message,
+    status,
+    createdAt,
+    updatedAt,
+  ];
 }

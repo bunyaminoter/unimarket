@@ -6,9 +6,14 @@ import 'package:unimarket/core/constants/app_colors.dart';
 import 'package:unimarket/core/constants/app_sizes.dart';
 import 'package:unimarket/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:unimarket/features/product/viewmodel/product_detail_viewmodel.dart';
+import 'package:unimarket/features/product/viewmodel/favorites_viewmodel.dart';
 import 'package:unimarket/features/trade/view/trade_offer_bottom_sheet.dart';
 import 'package:unimarket/features/product/view/edit_product_bottom_sheet.dart';
 import 'package:unimarket/models/product_model.dart';
+import 'package:unimarket/models/user_model.dart';
+import 'package:go_router/go_router.dart';
+import 'package:unimarket/core/router/app_router.dart';
+import 'package:unimarket/features/chat/viewmodel/chat_viewmodel.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final ProductModel initialProduct;
@@ -48,15 +53,56 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  /// Satıcıya Mesaj Atma İşlemi (Henüz sadece Mock, ileride Chat ekranına gidecek)
-  void _openChat(BuildContext context, ProductModel product) {
-    // Burada ileride /chat/:chatId ekranına gidilecek
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${product.sellerName} kişisine mesaj yönlendirmesi (Yakında)', style: GoogleFonts.poppins()),
-        backgroundColor: AppColors.primary,
-      ),
-    );
+  /// Satıcıya Mesaj Atma İşlemi
+  Future<void> _openChat(BuildContext context, ProductModel product) async {
+    try {
+      final chatVM = context.read<ChatDetailViewModel>();
+      final currentUser = context.read<AuthViewModel>().user;
+
+      if (currentUser == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Sohbet başlatmak için giriş yapmalısınız.',
+              style: GoogleFonts.poppins(),
+            ),
+          ),
+        );
+        return;
+      }
+
+      // Sohbeti başlat veya varolanı getir
+      final chatId = await chatVM.startOrGetChat(
+        product.sellerId,
+        productId: product.id,
+      );
+
+      if (context.mounted) {
+        final theOtherUser = UserModel(
+          uid: product.sellerId,
+          displayName: product.sellerName,
+          email: '', // Detail için şart değil
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+
+        context.pushNamed(
+          'chatDetail',
+          pathParameters: {'chatId': chatId},
+          extra: theOtherUser,
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Sohbet başlatılamadı: $e',
+            style: GoogleFonts.poppins(),
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
   }
 
   @override
@@ -86,20 +132,45 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   /// Üst Navigasyon Çubuğu
-  AppBar _buildAppBar(BuildContext context, ProductModel product, ProductDetailViewModel vm) {
+  AppBar _buildAppBar(
+    BuildContext context,
+    ProductModel product,
+    ProductDetailViewModel vm,
+  ) {
     return AppBar(
-      title: Text('İlan Detayı', style: GoogleFonts.poppins(fontSize: AppSizes.fontLg, fontWeight: FontWeight.w600)),
+      title: Text(
+        'İlan Detayı',
+        style: GoogleFonts.poppins(
+          fontSize: AppSizes.fontLg,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
       actions: [
-        IconButton(
-          icon: Icon(Icons.favorite_border_rounded, color: AppColors.textPrimary),
-          onPressed: () => vm.toggleFavorite(),
+        Consumer<FavoritesViewModel>(
+          builder: (context, favVM, child) {
+            final isFavorite = favVM.isFavorite(product.id);
+            return IconButton(
+              icon: Icon(
+                isFavorite
+                    ? Icons.favorite_rounded
+                    : Icons.favorite_border_rounded,
+                color: isFavorite ? AppColors.error : AppColors.textPrimary,
+              ),
+              onPressed: () {
+                favVM.toggleFavorite(product);
+              },
+            );
+          },
         ),
         IconButton(
           icon: Icon(Icons.share_rounded, color: AppColors.textPrimary),
           onPressed: () {
             // Paylaşma mantığı (İsteğe bağlı)
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('İlan paylaşılmak üzere kopyalandı!'), backgroundColor: AppColors.secondary),
+              SnackBar(
+                content: Text('İlan paylaşılmak üzere kopyalandı!'),
+                backgroundColor: AppColors.secondary,
+              ),
             );
           },
         ),
@@ -113,7 +184,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       return Container(
         height: 300,
         color: Colors.grey.shade100,
-        child: const Center(child: Icon(Icons.image_not_supported_outlined, size: 64, color: AppColors.textHint)),
+        child: const Center(
+          child: Icon(
+            Icons.image_not_supported_outlined,
+            size: 64,
+            color: AppColors.textHint,
+          ),
+        ),
       );
     }
 
@@ -136,11 +213,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 placeholder: (context, url) => Container(
                   color: Colors.grey.shade100,
                   alignment: Alignment.center,
-                  child: const CircularProgressIndicator(color: AppColors.primary),
+                  child: const CircularProgressIndicator(
+                    color: AppColors.primary,
+                  ),
                 ),
                 errorWidget: (context, url, error) => Container(
                   color: Colors.grey.shade100,
-                  child: const Icon(Icons.broken_image_rounded, color: AppColors.textHint),
+                  child: const Icon(
+                    Icons.broken_image_rounded,
+                    color: AppColors.textHint,
+                  ),
                 ),
               );
             },
@@ -162,10 +244,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   width: _currentImageIndex == index ? 24 : 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: _currentImageIndex == index ? AppColors.primary : Colors.white.withValues(alpha: 0.6),
+                    color: _currentImageIndex == index
+                        ? AppColors.primary
+                        : Colors.white.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(4),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withValues(alpha: 0.2), offset: const Offset(0, 2), blurRadius: 4),
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        offset: const Offset(0, 2),
+                        blurRadius: 4,
+                      ),
                     ],
                   ),
                 ),
@@ -189,17 +277,41 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             children: [
               Text(
                 product.formattedPrice,
-                style: GoogleFonts.poppins(fontSize: AppSizes.fontXxl, fontWeight: FontWeight.bold, color: AppColors.primary),
+                style: GoogleFonts.poppins(
+                  fontSize: AppSizes.fontXxl,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
               ),
               Row(
                 children: [
-                  Icon(Icons.remove_red_eye_outlined, size: 16, color: AppColors.textHint),
+                  Icon(
+                    Icons.remove_red_eye_outlined,
+                    size: 16,
+                    color: AppColors.textHint,
+                  ),
                   const SizedBox(width: 4),
-                  Text('${product.viewCount}', style: GoogleFonts.poppins(color: AppColors.textHint, fontSize: AppSizes.fontSm)),
+                  Text(
+                    '${product.viewCount}',
+                    style: GoogleFonts.poppins(
+                      color: AppColors.textHint,
+                      fontSize: AppSizes.fontSm,
+                    ),
+                  ),
                   const SizedBox(width: AppSizes.md),
-                  Icon(Icons.favorite_rounded, size: 16, color: AppColors.error),
+                  Icon(
+                    Icons.favorite_rounded,
+                    size: 16,
+                    color: AppColors.error,
+                  ),
                   const SizedBox(width: 4),
-                  Text('${product.favoriteCount}', style: GoogleFonts.poppins(color: AppColors.textHint, fontSize: AppSizes.fontSm)),
+                  Text(
+                    '${product.favoriteCount}',
+                    style: GoogleFonts.poppins(
+                      color: AppColors.textHint,
+                      fontSize: AppSizes.fontSm,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -209,16 +321,30 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           // Başlık
           Text(
             product.title,
-            style: GoogleFonts.poppins(fontSize: AppSizes.fontLg, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+            style: GoogleFonts.poppins(
+              fontSize: AppSizes.fontLg,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
           ),
           const SizedBox(height: AppSizes.md),
 
           // Kategori, Kondisyon Rozetleri
           Row(
             children: [
-              _buildBadge(product.category.displayName, Icons.category_outlined, AppColors.secondary.withValues(alpha: 0.1), AppColors.secondary),
+              _buildBadge(
+                product.category.displayName,
+                Icons.category_outlined,
+                AppColors.secondary.withValues(alpha: 0.1),
+                AppColors.secondary,
+              ),
               const SizedBox(width: AppSizes.sm),
-              _buildBadge(product.condition.label, Icons.info_outline_rounded, Colors.blue.withValues(alpha: 0.1), Colors.blue.shade700),
+              _buildBadge(
+                product.condition.label,
+                Icons.info_outline_rounded,
+                Colors.blue.withValues(alpha: 0.1),
+                Colors.blue.shade700,
+              ),
             ],
           ),
           const SizedBox(height: AppSizes.lg),
@@ -236,32 +362,62 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 CircleAvatar(
                   radius: 24,
                   backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                  backgroundImage: product.sellerPhotoUrl != null ? NetworkImage(product.sellerPhotoUrl!) : null,
-                  child: product.sellerPhotoUrl == null ? Icon(Icons.person_outline, color: AppColors.primary) : null,
+                  backgroundImage: product.sellerPhotoUrl != null
+                      ? NetworkImage(product.sellerPhotoUrl!)
+                      : null,
+                  child: product.sellerPhotoUrl == null
+                      ? Icon(Icons.person_outline, color: AppColors.primary)
+                      : null,
                 ),
                 const SizedBox(width: AppSizes.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(product.sellerName, style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: AppSizes.fontMd)),
+                      Text(
+                        product.sellerName,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          fontSize: AppSizes.fontMd,
+                        ),
+                      ),
                       if (product.location != null)
-                        Text(product.location!, style: GoogleFonts.poppins(fontSize: AppSizes.fontSm, color: AppColors.textSecondary)),
+                        Text(
+                          product.location!,
+                          style: GoogleFonts.poppins(
+                            fontSize: AppSizes.fontSm,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
                     ],
                   ),
                 ),
-                Icon(Icons.verified, color: AppColors.success, size: AppSizes.iconMd),
+                Icon(
+                  Icons.verified,
+                  color: AppColors.success,
+                  size: AppSizes.iconMd,
+                ),
               ],
             ),
           ),
           const SizedBox(height: AppSizes.lg),
 
           // Açıklama
-          Text('Açıklama', style: GoogleFonts.poppins(fontSize: AppSizes.fontMd, fontWeight: FontWeight.w600)),
+          Text(
+            'Açıklama',
+            style: GoogleFonts.poppins(
+              fontSize: AppSizes.fontMd,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const SizedBox(height: AppSizes.sm),
           Text(
             product.description,
-            style: GoogleFonts.poppins(fontSize: AppSizes.fontSm, color: AppColors.textSecondary, height: 1.5),
+            style: GoogleFonts.poppins(
+              fontSize: AppSizes.fontSm,
+              color: AppColors.textSecondary,
+              height: 1.5,
+            ),
           ),
           const SizedBox(height: AppSizes.xl),
 
@@ -272,24 +428,44 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               decoration: BoxDecoration(
                 color: AppColors.success.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: AppColors.success.withValues(alpha: 0.3),
+                ),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: AppColors.success, shape: BoxShape.circle),
-                    child: const Icon(Icons.swap_horiz_rounded, color: Colors.white, size: 20),
+                    decoration: BoxDecoration(
+                      color: AppColors.success,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.swap_horiz_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
                   const SizedBox(width: AppSizes.md),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Takasa Uygun', style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: AppColors.success)),
                         Text(
-                          product.tradeDescription?.isNotEmpty == true ? product.tradeDescription! : 'Sıradan takas tekliflerine açık.',
-                          style: GoogleFonts.poppins(fontSize: AppSizes.fontXs, color: Colors.grey.shade700),
+                          'Takasa Uygun',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.success,
+                          ),
+                        ),
+                        Text(
+                          product.tradeDescription?.isNotEmpty == true
+                              ? product.tradeDescription!
+                              : 'Sıradan takas tekliflerine açık.',
+                          style: GoogleFonts.poppins(
+                            fontSize: AppSizes.fontXs,
+                            color: Colors.grey.shade700,
+                          ),
                         ),
                       ],
                     ),
@@ -304,29 +480,54 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  Widget _buildBadge(String text, IconData icon, Color bgColor, Color textColor) {
+  Widget _buildBadge(
+    String text,
+    IconData icon,
+    Color bgColor,
+    Color textColor,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSizes.sm, vertical: 6),
-      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(AppSizes.radiusSm)),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: textColor),
           const SizedBox(width: 4),
-          Text(text, style: GoogleFonts.poppins(fontSize: AppSizes.fontXs, fontWeight: FontWeight.w500, color: textColor)),
+          Text(
+            text,
+            style: GoogleFonts.poppins(
+              fontSize: AppSizes.fontXs,
+              fontWeight: FontWeight.w500,
+              color: textColor,
+            ),
+          ),
         ],
       ),
     );
   }
 
   /// Alt Eylem Butonları (Takas Teklif Et ve Mesaj At)
-  Widget _buildBottomActions(BuildContext context, ProductModel product, bool isOwner) {
+  Widget _buildBottomActions(
+    BuildContext context,
+    ProductModel product,
+    bool isOwner,
+  ) {
     if (isOwner) {
       return Container(
         padding: const EdgeInsets.all(AppSizes.lg),
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), offset: const Offset(0, -4), blurRadius: 10)],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              offset: const Offset(0, -4),
+              blurRadius: 10,
+            ),
+          ],
         ),
         child: ElevatedButton.icon(
           onPressed: () async {
@@ -344,22 +545,36 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             }
           },
           icon: const Icon(Icons.edit_outlined),
-          label: Text('İlanımı Yönet', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          label: Text(
+            'İlanımı Yönet',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          ),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.secondary,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+            ),
           ),
         ),
       );
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSizes.md, vertical: AppSizes.md),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.md,
+        vertical: AppSizes.md,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), offset: const Offset(0, -4), blurRadius: 10)],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            offset: const Offset(0, -4),
+            blurRadius: 10,
+          ),
+        ],
       ),
       child: SafeArea(
         child: Row(
@@ -373,12 +588,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   child: OutlinedButton.icon(
                     onPressed: () => _showTradeOfferSheet(context, product),
                     icon: const Icon(Icons.swap_horiz_rounded, size: 20),
-                    label: Text('Takas', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+                    label: Text(
+                      'Takas',
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                    ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.success,
                       side: BorderSide(color: AppColors.success, width: 2),
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                      ),
                     ),
                   ),
                 ),
@@ -390,12 +610,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               child: ElevatedButton.icon(
                 onPressed: () => _openChat(context, product),
                 icon: const Icon(Icons.chat_bubble_outline_rounded, size: 20),
-                label: Text('Satıcıya Mesaj At', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+                label: Text(
+                  'Satıcıya Mesaj At',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                  ),
                 ),
               ),
             ),

@@ -111,8 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             builder: (context, profileVM, _) {
               if (profileVM.user != null) {
                 return IconButton(
-                  onPressed: () =>
-                      _showEditSheet(context, profileVM.user!),
+                  onPressed: () => _showEditSheet(context, profileVM.user!),
                   icon: const Icon(Icons.edit_outlined),
                 );
               }
@@ -182,8 +181,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: const EdgeInsets.all(AppSizes.md),
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardTheme.color,
-                    borderRadius:
-                        BorderRadius.circular(AppSizes.radiusLg),
+                    borderRadius: BorderRadius.circular(AppSizes.radiusLg),
                     boxShadow: [
                       BoxShadow(
                         color: AppColors.shadow,
@@ -271,8 +269,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         width: 1.5,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(AppSizes.radiusMd),
+                        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
                       ),
                     ),
                   ),
@@ -320,9 +317,8 @@ class _ProfileHeader extends StatelessWidget {
                       child: Image.network(
                         user.photoUrl!,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => _AvatarInitials(
-                          initials: user.initials,
-                        ),
+                        errorBuilder: (_, _, _) =>
+                            _AvatarInitials(initials: user.initials),
                       ),
                     )
                   : _AvatarInitials(initials: user.initials),
@@ -424,11 +420,7 @@ class _Badge extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-  const _Badge({
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
+  const _Badge({required this.icon, required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -440,9 +432,7 @@ class _Badge extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppSizes.radiusFull),
-        border: Border.all(
-          color: color.withValues(alpha: 0.3),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

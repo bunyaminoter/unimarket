@@ -30,16 +30,17 @@ class _ProfileEditSheetState extends State<ProfileEditSheet> {
   @override
   void initState() {
     super.initState();
-    _nameController =
-        TextEditingController(text: widget.user.displayName);
-    _universityController =
-        TextEditingController(text: widget.user.university ?? '');
-    _departmentController =
-        TextEditingController(text: widget.user.department ?? '');
-    _phoneController =
-        TextEditingController(text: widget.user.phoneNumber ?? '');
-    _bioController =
-        TextEditingController(text: widget.user.bio ?? '');
+    _nameController = TextEditingController(text: widget.user.displayName);
+    _universityController = TextEditingController(
+      text: widget.user.university ?? '',
+    );
+    _departmentController = TextEditingController(
+      text: widget.user.department ?? '',
+    );
+    _phoneController = TextEditingController(
+      text: widget.user.phoneNumber ?? '',
+    );
+    _bioController = TextEditingController(text: widget.user.bio ?? '');
   }
 
   @override
@@ -69,10 +70,7 @@ class _ProfileEditSheetState extends State<ProfileEditSheet> {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Profil güncellendi!',
-            style: GoogleFonts.poppins(),
-          ),
+          content: Text('Profil güncellendi!', style: GoogleFonts.poppins()),
           backgroundColor: AppColors.success,
         ),
       );

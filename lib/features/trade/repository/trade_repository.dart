@@ -6,7 +6,7 @@ class TradeRepository {
   final FirebaseFirestore _firestore;
 
   TradeRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _offersCollection =>
       _firestore.collection('trade_offers');
@@ -20,7 +20,8 @@ class TradeRepository {
   /// Belirli bir kullanıcının kendi ürünlerinden hangilerini teklif edebileceğini çeker.
   Future<List<ProductModel>> getMyTradeEligibleProducts(String userId) async {
     // Sadece statüsü active ve isTradeEligible olanlar getirilir.
-    final snapshot = await _firestore.collection('products')
+    final snapshot = await _firestore
+        .collection('products')
         .where('sellerId', isEqualTo: userId)
         .where('status', isEqualTo: 'active')
         .where('isTradeEligible', isEqualTo: true)
@@ -36,6 +37,8 @@ class TradeRepository {
         .where('status', isEqualTo: 'pending') // Sadece bekleyenler
         .get();
 
-    return snapshot.docs.map((doc) => TradeOfferModel.fromFirestore(doc)).toList();
+    return snapshot.docs
+        .map((doc) => TradeOfferModel.fromFirestore(doc))
+        .toList();
   }
 }

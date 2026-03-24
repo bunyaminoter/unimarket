@@ -55,7 +55,7 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
           ),
-          
+
           Expanded(
             child: ListView(
               padding: EdgeInsets.zero,
@@ -99,10 +99,26 @@ class AppDrawer extends StatelessWidget {
                     context.push(AppRoutes.myProducts);
                   },
                 ),
+                _DrawerItem(
+                  icon: Icons.favorite_border_rounded,
+                  title: 'Beğendiklerim',
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push(AppRoutes.favorites);
+                  },
+                ),
+                _DrawerItem(
+                  icon: Icons.chat_bubble_outline_rounded,
+                  title: 'Mesajlarım',
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push(AppRoutes.chatList);
+                  },
+                ),
               ],
             ),
           ),
-          
+
           // Çıkış Yap Butonu
           Padding(
             padding: const EdgeInsets.all(AppSizes.md),

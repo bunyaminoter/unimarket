@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:unimarket/features/product/repository/product_repository.dart';
+import 'package:unimarket/services/storage_service.dart';
 import 'package:unimarket/models/product_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
 
 class MyProductsViewModel extends ChangeNotifier {
   final ProductRepository _repository;
-  
+  final StorageService _storageService;
+
   List<ProductModel> _myProducts = [];
   bool _isLoading = false;
   String? _errorMessage;
@@ -14,8 +17,11 @@ class MyProductsViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  MyProductsViewModel({ProductRepository? repository})
-      : _repository = repository ?? ProductRepository();
+  MyProductsViewModel({
+    ProductRepository? repository,
+    StorageService? storageService,
+  }) : _repository = repository ?? ProductRepository(),
+       _storageService = storageService ?? StorageService();
 
   Future<void> loadMyProducts() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -31,10 +37,10 @@ class MyProductsViewModel extends ChangeNotifier {
       notifyListeners();
 
       _myProducts = await _repository.getUserProducts(user.uid);
-      
+
       // En yeni ilanlar en üstte olsun
       _myProducts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      
+
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -48,10 +54,10 @@ class MyProductsViewModel extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
-      
+
       await _repository.deleteProduct(productId);
       _myProducts.removeWhere((p) => p.id == productId);
-      
+
       _isLoading = false;
       notifyListeners();
       return true;
@@ -63,19 +69,44 @@ class MyProductsViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> updateProductDetails(ProductModel product) async {
+  Future<bool> updateProductDetails(
+    ProductModel product, {
+    File? newImageFile,
+  }) async {
     try {
       _isLoading = true;
       notifyListeners();
-      
-      await _repository.updateProduct(product);
-      
-      // Listeyi güncelle
-      final index = _myProducts.indexWhere((p) => p.id == product.id);
-      if (index != -1) {
-        _myProducts[index] = product;
+
+      ProductModel updatedProduct = product;
+
+      // Resim güncellendiyse (veya eklendiyse) storage'a yükle
+      if (newImageFile != null) {
+        final List<String> imageUrls = await _storageService
+            .uploadMultipleFiles(
+              files: [newImageFile],
+              basePath: 'products/${product.sellerId}',
+            );
+
+        if (imageUrls.isNotEmpty) {
+          final updatedImages = List<String>.from(product.images);
+          if (updatedImages.isNotEmpty) {
+            updatedImages[0] = imageUrls.first; // Varolan ilk resmi güncelle
+          } else {
+            updatedImages.add(imageUrls.first); // Yoksa ekle
+          }
+
+          updatedProduct = product.copyWith(images: updatedImages);
+        }
       }
-      
+
+      await _repository.updateProduct(updatedProduct);
+
+      // Listeyi güncelle
+      final index = _myProducts.indexWhere((p) => p.id == updatedProduct.id);
+      if (index != -1) {
+        _myProducts[index] = updatedProduct;
+      }
+
       _isLoading = false;
       notifyListeners();
       return true;

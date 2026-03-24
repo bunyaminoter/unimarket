@@ -64,8 +64,9 @@ class ProductImagePicker extends StatelessWidget {
                 _AddImageButton(
                   onTap: () async {
                     final pickerService = ImagePickerService();
-                    final file =
-                        await pickerService.showImageSourcePicker(context);
+                    final file = await pickerService.showImageSourcePicker(
+                      context,
+                    );
                     if (file != null) {
                       onImageAdded(file);
                     }
@@ -176,13 +177,9 @@ class _ImagePreview extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(
-                isFirst ? AppSizes.radiusMd - 1 : AppSizes.radiusMd),
-            child: Image.file(
-              file,
-              fit: BoxFit.cover,
-              width: 100,
-              height: 100,
+              isFirst ? AppSizes.radiusMd - 1 : AppSizes.radiusMd,
             ),
+            child: Image.file(file, fit: BoxFit.cover, width: 100, height: 100),
           ),
         ),
         // "Kapak" rozeti

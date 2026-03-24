@@ -174,24 +174,25 @@ class UserModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        uid,
-        email,
-        displayName,
-        photoUrl,
-        university,
-        department,
-        studentYear,
-        phoneNumber,
-        bio,
-        createdAt,
-        updatedAt,
-        isEmailVerified,
-        rating,
-        totalSales,
-        totalPurchases,
-        totalTrades,
-      ];
+    uid,
+    email,
+    displayName,
+    photoUrl,
+    university,
+    department,
+    studentYear,
+    phoneNumber,
+    bio,
+    createdAt,
+    updatedAt,
+    isEmailVerified,
+    rating,
+    totalSales,
+    totalPurchases,
+    totalTrades,
+  ];
 
   @override
-  String toString() => 'UserModel(uid: $uid, email: $email, name: $displayName)';
+  String toString() =>
+      'UserModel(uid: $uid, email: $email, name: $displayName)';
 }

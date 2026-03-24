@@ -44,7 +44,9 @@ class _TradeOfferBottomSheetState extends State<TradeOfferBottomSheet> {
     final success = await vm.sendTradeOffer(
       offererId: user.uid,
       targetProduct: widget.targetProduct,
-      message: _messageController.text.trim().isNotEmpty ? _messageController.text : null,
+      message: _messageController.text.trim().isNotEmpty
+          ? _messageController.text
+          : null,
     );
 
     if (success && mounted) {
@@ -53,7 +55,10 @@ class _TradeOfferBottomSheetState extends State<TradeOfferBottomSheet> {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Takas teklifiniz satıcıya başarıyla iletildi!', style: GoogleFonts.poppins()),
+          content: Text(
+            'Takas teklifiniz satıcıya başarıyla iletildi!',
+            style: GoogleFonts.poppins(),
+          ),
           backgroundColor: AppColors.success,
         ),
       );
@@ -74,7 +79,9 @@ class _TradeOfferBottomSheetState extends State<TradeOfferBottomSheet> {
       ),
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.radiusXl)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppSizes.radiusXl),
+        ),
       ),
       child: Consumer<TradeOfferViewModel>(
         builder: (context, vm, child) {
@@ -86,16 +93,28 @@ class _TradeOfferBottomSheetState extends State<TradeOfferBottomSheet> {
                 child: Container(
                   width: 40,
                   height: 4,
-                  decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(4)),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
               ),
               const SizedBox(height: AppSizes.lg),
 
-              Text('Takas Teklifi Gönder', style: GoogleFonts.poppins(fontSize: AppSizes.fontLg, fontWeight: FontWeight.bold)),
+              Text(
+                'Takas Teklifi Gönder',
+                style: GoogleFonts.poppins(
+                  fontSize: AppSizes.fontLg,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: AppSizes.xs),
               Text(
                 '${widget.targetProduct.title} ürünü için kendi ilanlarınızdan birini seçin.',
-                style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: AppSizes.fontSm),
+                style: GoogleFonts.poppins(
+                  color: AppColors.textSecondary,
+                  fontSize: AppSizes.fontSm,
+                ),
               ),
               const SizedBox(height: AppSizes.md),
 
@@ -107,9 +126,18 @@ class _TradeOfferBottomSheetState extends State<TradeOfferBottomSheet> {
                   hintText: 'Satıcıya isteğe bağlı kısa bir mesaj bırakın...',
                   filled: true,
                   fillColor: Colors.grey.shade50,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppSizes.radiusMd), borderSide: BorderSide(color: Colors.grey.shade300)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppSizes.radiusMd), borderSide: BorderSide(color: Colors.grey.shade300)),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppSizes.radiusMd), borderSide: BorderSide(color: AppColors.primary)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                    borderSide: BorderSide(color: AppColors.primary),
+                  ),
                 ),
                 style: GoogleFonts.poppins(fontSize: AppSizes.fontSm),
               ),
@@ -118,102 +146,170 @@ class _TradeOfferBottomSheetState extends State<TradeOfferBottomSheet> {
               // Ürün Listesi
               Expanded(
                 child: vm.isLoading
-                    ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
+                      )
                     : vm.myEligibleProducts.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.inventory_2_outlined, size: 48, color: AppColors.textHint),
-                                const SizedBox(height: AppSizes.sm),
-                                Text(
-                                  'Takas edilebilir aktif üretiminiz yok.\nÖnce takasa uygun yeni bir ilan verin.',
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.poppins(color: AppColors.textSecondary),
-                                ),
-                              ],
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.inventory_2_outlined,
+                              size: 48,
+                              color: AppColors.textHint,
                             ),
-                          )
-                        : ListView.builder(
-                            itemCount: vm.myEligibleProducts.length,
-                            itemBuilder: (context, index) {
-                              final product = vm.myEligibleProducts[index];
-                              final isSelected = vm.selectedProduct?.id == product.id;
+                            const SizedBox(height: AppSizes.sm),
+                            Text(
+                              'Takas edilebilir aktif üretiminiz yok.\nÖnce takasa uygun yeni bir ilan verin.',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.poppins(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: vm.myEligibleProducts.length,
+                        itemBuilder: (context, index) {
+                          final product = vm.myEligibleProducts[index];
+                          final isSelected =
+                              vm.selectedProduct?.id == product.id;
 
-                              return GestureDetector(
-                                onTap: () => vm.selectProduct(product),
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 200),
-                                  margin: const EdgeInsets.only(bottom: AppSizes.sm),
-                                  padding: const EdgeInsets.all(AppSizes.xs),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: isSelected ? AppColors.success : Colors.grey.shade200,
-                                      width: isSelected ? 2 : 1,
-                                    ),
-                                    borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-                                    color: isSelected ? AppColors.success.withValues(alpha: 0.05) : Colors.white,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                                        child: product.primaryImage != null
-                                            ? CachedNetworkImage(
-                                                imageUrl: product.primaryImage!,
-                                                width: 60,
-                                                height: 60,
-                                                fit: BoxFit.cover,
-                                              )
-                                            : Container(width: 60, height: 60, color: Colors.grey.shade200, child: const Icon(Icons.image)),
-                                      ),
-                                      const SizedBox(width: AppSizes.md),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(product.title, style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: AppSizes.fontSm), maxLines: 1, overflow: TextOverflow.ellipsis),
-                                            const SizedBox(height: 2),
-                                            Text(product.formattedPrice, style: GoogleFonts.poppins(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: AppSizes.fontXs)),
-                                          ],
-                                        ),
-                                      ),
-                                      if (isSelected)
-                                        const Padding(
-                                          padding: EdgeInsets.only(right: 8.0),
-                                          child: Icon(Icons.check_circle_rounded, color: AppColors.success),
-                                        ),
-                                    ],
-                                  ),
+                          return GestureDetector(
+                            onTap: () => vm.selectProduct(product),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              margin: const EdgeInsets.only(
+                                bottom: AppSizes.sm,
+                              ),
+                              padding: const EdgeInsets.all(AppSizes.xs),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppColors.success
+                                      : Colors.grey.shade200,
+                                  width: isSelected ? 2 : 1,
                                 ),
-                              );
-                            },
-                          ),
+                                borderRadius: BorderRadius.circular(
+                                  AppSizes.radiusLg,
+                                ),
+                                color: isSelected
+                                    ? AppColors.success.withValues(alpha: 0.05)
+                                    : Colors.white,
+                              ),
+                              child: Row(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(
+                                      AppSizes.radiusMd,
+                                    ),
+                                    child: product.primaryImage != null
+                                        ? CachedNetworkImage(
+                                            imageUrl: product.primaryImage!,
+                                            width: 60,
+                                            height: 60,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Container(
+                                            width: 60,
+                                            height: 60,
+                                            color: Colors.grey.shade200,
+                                            child: const Icon(Icons.image),
+                                          ),
+                                  ),
+                                  const SizedBox(width: AppSizes.md),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          product.title,
+                                          style: GoogleFonts.poppins(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: AppSizes.fontSm,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          product.formattedPrice,
+                                          style: GoogleFonts.poppins(
+                                            color: AppColors.primary,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: AppSizes.fontXs,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    const Padding(
+                                      padding: EdgeInsets.only(right: 8.0),
+                                      child: Icon(
+                                        Icons.check_circle_rounded,
+                                        color: AppColors.success,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
               ),
-              
+
               const SizedBox(height: AppSizes.md),
 
               if (vm.errorMessage != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text(vm.errorMessage!, style: GoogleFonts.poppins(color: AppColors.error, fontSize: AppSizes.fontXs)),
+                  child: Text(
+                    vm.errorMessage!,
+                    style: GoogleFonts.poppins(
+                      color: AppColors.error,
+                      fontSize: AppSizes.fontXs,
+                    ),
+                  ),
                 ),
 
               // Gönder Butonu
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: (vm.isLoading || vm.selectedProduct == null) ? null : () => _submitOffer(context, vm),
+                  onPressed: (vm.isLoading || vm.selectedProduct == null)
+                      ? null
+                      : () => _submitOffer(context, vm),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.success,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                    ),
                     disabledBackgroundColor: Colors.grey.shade300,
                   ),
                   child: vm.isLoading
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : Text('Teklifi Gönder', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: AppSizes.fontMd)),
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          'Teklifi Gönder',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.bold,
+                            fontSize: AppSizes.fontMd,
+                          ),
+                        ),
                 ),
               ),
             ],

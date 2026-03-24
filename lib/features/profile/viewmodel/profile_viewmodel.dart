@@ -10,7 +10,7 @@ class ProfileViewModel extends ChangeNotifier {
   final ProfileRepository _repository;
 
   ProfileViewModel({ProfileRepository? repository})
-      : _repository = repository ?? ProfileRepository();
+    : _repository = repository ?? ProfileRepository();
 
   // ── State ────────────────────────────────────────────────
   UserModel? _user;

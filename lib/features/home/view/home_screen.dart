@@ -14,8 +14,22 @@ import 'package:unimarket/features/home/widgets/app_drawer.dart';
 
 /// Ana Sayfa Ekranı
 /// Ürün listesi, kategori filtreleri ve hızlı erişim kartları.
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,31 +38,55 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       drawer: const AppDrawer(),
       appBar: AppBar(
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppSizes.xs + 2),
-              decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
-                borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+        title: _isSearching
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: 'Ürün ara...',
+                  border: InputBorder.none,
+                  hintStyle: GoogleFonts.poppins(color: Colors.grey),
+                ),
+                style: GoogleFonts.poppins(),
+                onChanged: (value) {
+                  context.read<HomeViewModel>().setSearchQuery(value);
+                },
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(AppSizes.xs + 2),
+                    decoration: BoxDecoration(
+                      gradient: AppColors.primaryGradient,
+                      borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+                    ),
+                    child: const Icon(
+                      Icons.store_rounded,
+                      color: Colors.white,
+                      size: AppSizes.iconSm + 2,
+                    ),
+                  ),
+                  const SizedBox(width: AppSizes.sm),
+                  const Text(AppStrings.appName),
+                ],
               ),
-              child: const Icon(
-                Icons.store_rounded,
-                color: Colors.white,
-                size: AppSizes.iconSm + 2,
-              ),
-            ),
-            const SizedBox(width: AppSizes.sm),
-            const Text(AppStrings.appName),
-          ],
-        ),
         actions: [
           IconButton(
             onPressed: () {
-              // Sonraki fazda arama özelliği eklenecek
+              setState(() {
+                if (_isSearching) {
+                  _isSearching = false;
+                  _searchController.clear();
+                  context.read<HomeViewModel>().setSearchQuery('');
+                } else {
+                  _isSearching = true;
+                }
+              });
             },
-            icon: const Icon(Icons.search_rounded),
+            icon: Icon(
+              _isSearching ? Icons.close_rounded : Icons.search_rounded,
+            ),
           ),
           IconButton(
             onPressed: () {
@@ -125,8 +163,10 @@ class HomeScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Kategoriler',
-                                style: theme.textTheme.titleLarge),
+                            Text(
+                              'Kategoriler',
+                              style: theme.textTheme.titleLarge,
+                            ),
                             if (homeVM.selectedCategory != null)
                               TextButton(
                                 onPressed: () => homeVM.selectCategory(null),
@@ -207,26 +247,26 @@ class HomeScreen extends StatelessWidget {
                     sliver: SliverGrid(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: AppSizes.md,
-                        crossAxisSpacing: AppSizes.md,
-                        childAspectRatio: 0.7, // Genişlik / Yükseklik oranı
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final product = homeVM.products[index];
-                          return ProductCard(
-                            product: product,
-                            onTap: () {
-                              context.push(AppRoutes.productDetail, extra: product);
-                            },
-                            onFavorite: () {
-                              // Sonraki faz: Favoriye ekleme
-                            },
-                          );
-                        },
-                        childCount: homeVM.products.length,
-                      ),
+                            crossAxisCount: 2,
+                            mainAxisSpacing: AppSizes.md,
+                            crossAxisSpacing: AppSizes.md,
+                            childAspectRatio: 0.7, // Genişlik / Yükseklik oranı
+                          ),
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final product = homeVM.products[index];
+                        return ProductCard(
+                          product: product,
+                          onTap: () {
+                            context.push(
+                              AppRoutes.productDetail,
+                              extra: product,
+                            );
+                          },
+                          onFavorite: () {
+                            // Sonraki faz: Favoriye ekleme
+                          },
+                        );
+                      }, childCount: homeVM.products.length),
                     ),
                   ),
 

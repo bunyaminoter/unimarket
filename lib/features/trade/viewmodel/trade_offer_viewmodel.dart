@@ -7,7 +7,7 @@ class TradeOfferViewModel extends ChangeNotifier {
   final TradeRepository _repository;
 
   TradeOfferViewModel({TradeRepository? repository})
-      : _repository = repository ?? TradeRepository();
+    : _repository = repository ?? TradeRepository();
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -26,7 +26,9 @@ class TradeOfferViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _myEligibleProducts = await _repository.getMyTradeEligibleProducts(userId);
+      _myEligibleProducts = await _repository.getMyTradeEligibleProducts(
+        userId,
+      );
     } catch (e) {
       _errorMessage = 'Takas edilebilir ürünleriniz yüklenemedi: $e';
     } finally {
@@ -75,7 +77,7 @@ class TradeOfferViewModel extends ChangeNotifier {
       );
 
       await _repository.createTradeOffer(offer);
-      
+
       _isLoading = false;
       notifyListeners();
       return true;

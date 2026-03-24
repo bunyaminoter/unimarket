@@ -8,7 +8,11 @@ import 'package:unimarket/features/profile/view/profile_screen.dart';
 import 'package:unimarket/features/product/view/add_product_screen.dart';
 import 'package:unimarket/features/product/view/product_detail_screen.dart';
 import 'package:unimarket/features/product/view/my_products_screen.dart';
+import 'package:unimarket/features/product/view/favorites_screen.dart';
+import 'package:unimarket/features/chat/view/chat_list_screen.dart';
+import 'package:unimarket/features/chat/view/chat_detail_screen.dart';
 import 'package:unimarket/models/product_model.dart';
+import 'package:unimarket/models/user_model.dart';
 
 /// Uygulama route isimleri.
 /// Tüm route'lar burada merkezi olarak tanımlıdır.
@@ -22,9 +26,10 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String addProduct = '/add-product';
   static const String myProducts = '/my-products';
+  static const String favorites = '/favorites';
   static const String productDetail = '/product/:id';
-  // Sonraki fazlarda eklenecek route'lar:
-  // static const String chat = '/chat';
+  static const String chatList = '/chat-list';
+  static const String chatDetail = '/chat-detail/:chatId';
 }
 
 /// GoRouter yapılandırması.
@@ -71,13 +76,16 @@ class AppRouter {
           child: const RegisterScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(1.0, 0.0),
-                end: Offset.zero,
-              ).animate(CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeInOutCubic,
-              )),
+              position:
+                  Tween<Offset>(
+                    begin: const Offset(1.0, 0.0),
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeInOutCubic,
+                    ),
+                  ),
               child: child,
             );
           },
@@ -106,13 +114,16 @@ class AppRouter {
           child: const ProfileScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0.0, 1.0),
-                end: Offset.zero,
-              ).animate(CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeInOutCubic,
-              )),
+              position:
+                  Tween<Offset>(
+                    begin: const Offset(0.0, 1.0),
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeInOutCubic,
+                    ),
+                  ),
               child: child,
             );
           },
@@ -128,13 +139,16 @@ class AppRouter {
           child: const AddProductScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0.0, 1.0), // Aşağıdan yukarı modal gibi
-                end: Offset.zero,
-              ).animate(CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutCubic,
-              )),
+              position:
+                  Tween<Offset>(
+                    begin: const Offset(0.0, 1.0), // Aşağıdan yukarı modal gibi
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                    ),
+                  ),
               child: child,
             );
           },
@@ -150,17 +164,104 @@ class AppRouter {
           child: const MyProductsScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(1.0, 0.0), // Sağdan sola
-                end: Offset.zero,
-              ).animate(CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutCubic,
-              )),
+              position:
+                  Tween<Offset>(
+                    begin: const Offset(1.0, 0.0), // Sağdan sola
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                    ),
+                  ),
               child: child,
             );
           },
         ),
+      ),
+
+      // ── Favorites ─────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.favorites,
+        name: 'favorites',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const FavoritesScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position:
+                  Tween<Offset>(
+                    begin: const Offset(1.0, 0.0), // Sağdan sola
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                    ),
+                  ),
+              child: child,
+            );
+          },
+        ),
+      ),
+
+      // ── Chat List ─────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.chatList,
+        name: 'chatList',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const ChatListScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position:
+                  Tween<Offset>(
+                    begin: const Offset(1.0, 0.0),
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                    ),
+                  ),
+              child: child,
+            );
+          },
+        ),
+      ),
+
+      // ── Chat Detail ───────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.chatDetail,
+        name: 'chatDetail',
+        pageBuilder: (context, state) {
+          final chatId = state.pathParameters['chatId'];
+          final targetUser = state.extra as UserModel;
+
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: ChatDetailScreen(
+              chatId: chatId ?? '',
+              targetUser: targetUser,
+            ),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return SlideTransition(
+                    position:
+                        Tween<Offset>(
+                          begin: const Offset(1.0, 0.0),
+                          end: Offset.zero,
+                        ).animate(
+                          CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.easeOutCubic,
+                          ),
+                        ),
+                    child: child,
+                  );
+                },
+          );
+        },
       ),
 
       // ── Product Detail ────────────────────────────────────
@@ -172,18 +273,22 @@ class AppRouter {
           return CustomTransitionPage(
             key: state.pageKey,
             child: ProductDetailScreen(initialProduct: product),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(1.0, 0.0), // Sağdan sola
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutCubic,
-                )),
-                child: child,
-              );
-            },
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return SlideTransition(
+                    position:
+                        Tween<Offset>(
+                          begin: const Offset(1.0, 0.0), // Sağdan sola
+                          end: Offset.zero,
+                        ).animate(
+                          CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.easeOutCubic,
+                          ),
+                        ),
+                    child: child,
+                  );
+                },
           );
         },
       ),

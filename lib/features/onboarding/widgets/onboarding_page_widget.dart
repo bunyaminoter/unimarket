@@ -36,11 +36,7 @@ class OnboardingPageWidget extends StatelessWidget {
                 width: 2,
               ),
             ),
-            child: Icon(
-              page.icon,
-              size: 72,
-              color: page.gradientColors.first,
-            ),
+            child: Icon(page.icon, size: 72, color: page.gradientColors.first),
           ),
 
           const SizedBox(height: AppSizes.xxl),

@@ -87,12 +87,12 @@ class ProductModel extends Equatable {
       status: ProductStatus.fromString(data['status'] ?? 'active'),
       viewCount: data['viewCount'] ?? 0,
       favoriteCount: data['favoriteCount'] ?? 0,
-      createdAt: data['createdAt'] is String 
-        ? DateTime.parse(data['createdAt']) 
-        : (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      updatedAt: data['updatedAt'] is String 
-        ? DateTime.parse(data['updatedAt']) 
-        : (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      createdAt: data['createdAt'] is String
+          ? DateTime.parse(data['createdAt'])
+          : (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      updatedAt: data['updatedAt'] is String
+          ? DateTime.parse(data['updatedAt'])
+          : (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 
@@ -193,7 +193,8 @@ class ProductModel extends Equatable {
   }
 
   /// Fiyatı formatlanmış string olarak döndürür.
-  String get formattedPrice => '₺${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)}';
+  String get formattedPrice =>
+      '₺${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)}';
 
   /// İlk fotoğrafı döndürür (yoksa null).
   String? get primaryImage => images.isNotEmpty ? images.first : null;
@@ -203,12 +204,27 @@ class ProductModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id, title, description, price, category, condition,
-        images, sellerId, sellerName, sellerPhotoUrl,
-        isTradeEligible, tradeDescription, location, status,
-        viewCount, favoriteCount, createdAt, updatedAt,
-      ];
+    id,
+    title,
+    description,
+    price,
+    category,
+    condition,
+    images,
+    sellerId,
+    sellerName,
+    sellerPhotoUrl,
+    isTradeEligible,
+    tradeDescription,
+    location,
+    status,
+    viewCount,
+    favoriteCount,
+    createdAt,
+    updatedAt,
+  ];
 
   @override
-  String toString() => 'ProductModel(id: $id, title: $title, price: $formattedPrice)';
+  String toString() =>
+      'ProductModel(id: $id, title: $title, price: $formattedPrice)';
 }

@@ -9,8 +9,7 @@ import 'package:image_picker/image_picker.dart';
 class ImagePickerService {
   final ImagePicker _picker;
 
-  ImagePickerService({ImagePicker? picker})
-      : _picker = picker ?? ImagePicker();
+  ImagePickerService({ImagePicker? picker}) : _picker = picker ?? ImagePicker();
 
   // ── Tekil Fotoğraf Seçme ──────────────────────────────────
   /// Galeriden tek fotoğraf seçer.
@@ -110,8 +109,10 @@ class ImagePickerService {
                     color: Colors.blue.shade50,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(Icons.camera_alt_rounded,
-                      color: Colors.blue.shade700),
+                  child: Icon(
+                    Icons.camera_alt_rounded,
+                    color: Colors.blue.shade700,
+                  ),
                 ),
                 title: const Text('Kamera'),
                 subtitle: const Text('Yeni fotoğraf çek'),
@@ -124,8 +125,10 @@ class ImagePickerService {
                     color: Colors.purple.shade50,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(Icons.photo_library_rounded,
-                      color: Colors.purple.shade700),
+                  child: Icon(
+                    Icons.photo_library_rounded,
+                    color: Colors.purple.shade700,
+                  ),
                 ),
                 title: const Text('Galeri'),
                 subtitle: const Text('Mevcut fotoğraflardan seç'),

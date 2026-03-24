@@ -6,7 +6,7 @@ class ProductDetailViewModel extends ChangeNotifier {
   final ProductRepository _repository;
 
   ProductDetailViewModel({ProductRepository? repository})
-      : _repository = repository ?? ProductRepository();
+    : _repository = repository ?? ProductRepository();
 
   ProductModel? _product;
   bool _isLoading = false;

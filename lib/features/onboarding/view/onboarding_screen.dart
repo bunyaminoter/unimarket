@@ -156,13 +156,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),
-                        borderRadius:
-                            BorderRadius.circular(AppSizes.radiusMd),
+                        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
                         boxShadow: [
                           BoxShadow(
-                            color: _pages[_currentPage]
-                                .gradientColors
-                                .first
+                            color: _pages[_currentPage].gradientColors.first
                                 .withValues(alpha: 0.4),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
@@ -175,8 +172,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(AppSizes.radiusMd),
+                            borderRadius: BorderRadius.circular(
+                              AppSizes.radiusMd,
+                            ),
                           ),
                         ),
                         child: Row(

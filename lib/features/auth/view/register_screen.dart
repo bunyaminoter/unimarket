@@ -44,15 +44,14 @@ class _RegisterScreenState extends State<RegisterScreen>
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
-    );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.15),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero).animate(
+          CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
+        );
     _animController.forward();
   }
 
@@ -141,8 +140,9 @@ class _RegisterScreenState extends State<RegisterScreen>
                             padding: const EdgeInsets.all(AppSizes.sm),
                             decoration: BoxDecoration(
                               color: AppColors.primary.withValues(alpha: 0.1),
-                              borderRadius:
-                                  BorderRadius.circular(AppSizes.radiusSm),
+                              borderRadius: BorderRadius.circular(
+                                AppSizes.radiusSm,
+                              ),
                             ),
                             child: const Icon(
                               Icons.arrow_back_rounded,
@@ -214,8 +214,9 @@ class _RegisterScreenState extends State<RegisterScreen>
                         if (value == null || value.trim().isEmpty) {
                           return 'E-posta adresi gerekli.';
                         }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                            .hasMatch(value.trim())) {
+                        if (!RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        ).hasMatch(value.trim())) {
                           return 'Geçerli bir e-posta adresi girin.';
                         }
                         return null;
@@ -232,8 +233,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                       ),
                       decoration: BoxDecoration(
                         color: AppColors.success.withValues(alpha: 0.08),
-                        borderRadius:
-                            BorderRadius.circular(AppSizes.radiusSm),
+                        borderRadius: BorderRadius.circular(AppSizes.radiusSm),
                       ),
                       child: Row(
                         children: [
@@ -386,8 +386,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                  const TextSpan(
-                                      text: '\'nı kabul ediyorum.'),
+                                  const TextSpan(text: '\'nı kabul ediyorum.'),
                                 ],
                               ),
                             ),
@@ -405,15 +404,14 @@ class _RegisterScreenState extends State<RegisterScreen>
                           return Container(
                             width: double.infinity,
                             padding: const EdgeInsets.all(AppSizes.md),
-                            margin:
-                                const EdgeInsets.only(bottom: AppSizes.md),
+                            margin: const EdgeInsets.only(bottom: AppSizes.md),
                             decoration: BoxDecoration(
                               color: AppColors.error.withValues(alpha: 0.1),
-                              borderRadius:
-                                  BorderRadius.circular(AppSizes.radiusMd),
+                              borderRadius: BorderRadius.circular(
+                                AppSizes.radiusMd,
+                              ),
                               border: Border.all(
-                                color:
-                                    AppColors.error.withValues(alpha: 0.3),
+                                color: AppColors.error.withValues(alpha: 0.3),
                               ),
                             ),
                             child: Row(

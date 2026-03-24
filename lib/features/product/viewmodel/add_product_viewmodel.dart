@@ -19,9 +19,10 @@ class AddProductViewModel extends ChangeNotifier {
     ProductRepository? repository,
     StorageService? storageService,
     PriceSuggestionService? priceSuggestionService,
-  })  : _repository = repository ?? ProductRepository(),
-        _storageService = storageService ?? StorageService(),
-        _priceSuggestionService = priceSuggestionService ?? PriceSuggestionService();
+  }) : _repository = repository ?? ProductRepository(),
+       _storageService = storageService ?? StorageService(),
+       _priceSuggestionService =
+           priceSuggestionService ?? PriceSuggestionService();
 
   // ── State ────────────────────────────────────────────────
   List<File> _selectedImages = [];
@@ -184,7 +185,8 @@ class AddProductViewModel extends ChangeNotifier {
       return true;
     } catch (e) {
       _isLoading = false;
-      _errorMessage = 'Ürün kaydedilirken hata oluştu: ${e.toString().replaceAll("Exception: ", "")}';
+      _errorMessage =
+          'Ürün kaydedilirken hata oluştu: ${e.toString().replaceAll("Exception: ", "")}';
       notifyListeners();
       return false;
     }

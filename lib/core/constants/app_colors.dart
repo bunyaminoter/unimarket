@@ -6,17 +6,17 @@ class AppColors {
   AppColors._();
 
   // ── Ana Renkler ──────────────────────────────────────────
-  static const Color primary = Color(0xFF6C63FF);       // Mor-mavi (Ana aksan)
+  static const Color primary = Color(0xFF6C63FF); // Mor-mavi (Ana aksan)
   static const Color primaryDark = Color(0xFF524AE0);
   static const Color primaryLight = Color(0xFFA29BFE);
 
   // ── İkincil Renkler ──────────────────────────────────────
-  static const Color secondary = Color(0xFF00B4D8);     // Turkuaz
+  static const Color secondary = Color(0xFF00B4D8); // Turkuaz
   static const Color secondaryDark = Color(0xFF0096B7);
   static const Color secondaryLight = Color(0xFF90E0EF);
 
   // ── Accent / Vurgu ──────────────────────────────────────
-  static const Color accent = Color(0xFFFF6B6B);        // Mercan kırmızı
+  static const Color accent = Color(0xFFFF6B6B); // Mercan kırmızı
   static const Color accentLight = Color(0xFFFF9F9F);
 
   // ── Nötr Renkler ─────────────────────────────────────────
