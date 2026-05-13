@@ -17,6 +17,7 @@ import 'package:equatable/equatable.dart';
 ///   ├── studentYear: int?
 ///   ├── phoneNumber: string?
 ///   ├── bio: string?
+///   ├── role: string (user/admin)
 ///   ├── createdAt: timestamp
 ///   ├── updatedAt: timestamp
 ///   ├── isEmailVerified: bool
@@ -42,6 +43,7 @@ class UserModel extends Equatable {
   final int totalSales;
   final int totalPurchases;
   final int totalTrades;
+  final String role;
 
   const UserModel({
     required this.uid,
@@ -60,6 +62,7 @@ class UserModel extends Equatable {
     this.totalSales = 0,
     this.totalPurchases = 0,
     this.totalTrades = 0,
+    this.role = 'user',
   });
 
   /// Firestore'dan UserModel oluşturur.
@@ -82,6 +85,7 @@ class UserModel extends Equatable {
       totalSales: data['totalSales'] ?? 0,
       totalPurchases: data['totalPurchases'] ?? 0,
       totalTrades: data['totalTrades'] ?? 0,
+      role: data['role'] ?? 'user',
     );
   }
 
@@ -103,6 +107,7 @@ class UserModel extends Equatable {
       'totalSales': totalSales,
       'totalPurchases': totalPurchases,
       'totalTrades': totalTrades,
+      'role': role,
     };
   }
 
@@ -124,6 +129,7 @@ class UserModel extends Equatable {
     int? totalSales,
     int? totalPurchases,
     int? totalTrades,
+    String? role,
   }) {
     return UserModel(
       uid: uid ?? this.uid,
@@ -142,8 +148,12 @@ class UserModel extends Equatable {
       totalSales: totalSales ?? this.totalSales,
       totalPurchases: totalPurchases ?? this.totalPurchases,
       totalTrades: totalTrades ?? this.totalTrades,
+      role: role ?? this.role,
     );
   }
+
+  /// Kullanıcının admin olup olmadığını kontrol eder.
+  bool get isAdmin => role == 'admin';
 
   /// E-postanın .edu uzantılı (öğrenci) olup olmadığını kontrol eder.
   bool get isStudentEmail {
@@ -190,6 +200,7 @@ class UserModel extends Equatable {
     totalSales,
     totalPurchases,
     totalTrades,
+    role,
   ];
 
   @override

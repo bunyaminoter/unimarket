@@ -23,7 +23,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.unimarket"
-        minSdk = flutter.minSdkVersion  // Firebase Auth için minimum 23 gerekli
+        minSdk = flutter.minSdkVersion // Firebase Auth için minimum 23 gerekli
         targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName

@@ -41,6 +41,7 @@ class AuthViewModel extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _status == AuthStatus.authenticated;
   bool get isLoading => _status == AuthStatus.loading;
+  bool get isAdmin => _user?.isAdmin ?? false;
 
   // ── Auth State Listener ──────────────────────────────────
   Future<void> _onAuthStateChanged(User? firebaseUser) async {

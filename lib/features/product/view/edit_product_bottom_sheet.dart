@@ -6,6 +6,7 @@ import 'package:unimarket/core/constants/app_sizes.dart';
 import 'package:unimarket/features/product/viewmodel/my_products_viewmodel.dart';
 import 'package:unimarket/services/image_picker_service.dart';
 import 'package:unimarket/models/product_model.dart';
+import 'package:unimarket/features/product/model/product_category.dart';
 import 'dart:io';
 
 class EditProductBottomSheet extends StatefulWidget {
@@ -157,6 +158,57 @@ class _EditProductBottomSheetState extends State<EditProductBottomSheet> {
         SnackBar(
           content: Text(
             'İlanınız tamamen silindi.',
+            style: GoogleFonts.poppins(),
+          ),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleMarkAsSold() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Satıldı Olarak İşaretle',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          'Bu ürünü satıldı olarak işaretlemek istediğinize emin misiniz? Ürün artık satışta listelenmeyecek.',
+          style: GoogleFonts.poppins(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'İptal',
+              style: GoogleFonts.poppins(color: AppColors.textSecondary),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
+            child: Text('Evet, Satıldı', style: GoogleFonts.poppins(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true || !mounted) return;
+
+    final vm = context.read<MyProductsViewModel>();
+    final updatedProduct = widget.product.copyWith(
+      status: ProductStatus.sold,
+    );
+    final success = await vm.updateProductDetails(updatedProduct);
+
+    if (success && mounted) {
+      Navigator.pop(context, 'sold');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Ürün satıldı olarak işaretlendi.',
             style: GoogleFonts.poppins(),
           ),
           backgroundColor: AppColors.success,
@@ -344,7 +396,32 @@ class _EditProductBottomSheetState extends State<EditProductBottomSheet> {
                 },
               ),
 
-              const SizedBox(height: AppSizes.xl),
+              const SizedBox(height: AppSizes.md),
+
+              // Satıldı Olarak İşaretle Butonu
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: OutlinedButton.icon(
+                  onPressed: _handleMarkAsSold,
+                  icon: const Icon(Icons.check_circle_outline, color: AppColors.success),
+                  label: Text(
+                    'Satıldı Olarak İşaretle',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.success,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppColors.success, width: 1.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: AppSizes.md),
 
               Consumer<MyProductsViewModel>(
                 builder: (context, vm, child) {

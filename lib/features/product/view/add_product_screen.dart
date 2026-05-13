@@ -383,7 +383,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                               activeTrackColor: AppColors.success.withValues(
                                 alpha: 0.3,
                               ),
-                              onChanged: vm.setTradeEligible,
+                              onChanged: vm.isAuction ? null : vm.setTradeEligible,
                               contentPadding: EdgeInsets.zero,
                             ),
                             if (vm.isTradeEligible) ...[
@@ -401,6 +401,81 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                   }
                                   return null;
                                 },
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: AppSizes.md),
+
+                      // ── Açık Artırma Seçeneği ─────────────────
+                      Container(
+                        padding: const EdgeInsets.all(AppSizes.sm),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF6B6B).withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(
+                            AppSizes.radiusMd,
+                          ),
+                          border: Border.all(
+                            color: const Color(0xFFFF6B6B).withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            SwitchListTile(
+                              title: Text(
+                                '🔨 Açık Artırma Olarak Ekle',
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              subtitle: Text(
+                                'Ürünü taban fiyatı ile 24 saatlik açık artırmaya çıkar.',
+                                style: GoogleFonts.poppins(
+                                  fontSize: AppSizes.fontXs,
+                                ),
+                              ),
+                              value: vm.isAuction,
+                              activeThumbColor: const Color(0xFFFF6B6B),
+                              activeTrackColor: const Color(0xFFFF6B6B).withValues(
+                                alpha: 0.3,
+                              ),
+                              onChanged: vm.setAuction,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                            if (vm.isAuction) ...[
+                              const SizedBox(height: AppSizes.sm),
+                              Container(
+                                padding: const EdgeInsets.all(AppSizes.sm),
+                                decoration: BoxDecoration(
+                                  color: AppColors.info.withValues(alpha: 0.08),
+                                  borderRadius: BorderRadius.circular(
+                                    AppSizes.radiusSm,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.info_outline_rounded,
+                                      color: AppColors.info,
+                                      size: 18,
+                                    ),
+                                    const SizedBox(width: AppSizes.sm),
+                                    Expanded(
+                                      child: Text(
+                                        'Ürününüz 24 saat boyunca teklif alacak. '
+                                        'Teklif gelirse en yüksek teklif verene satılır. '
+                                        'Gelmezse taban fiyatıyla normal satışa devam eder.',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: AppSizes.fontXs,
+                                          color: AppColors.info,
+                                          height: 1.4,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ],

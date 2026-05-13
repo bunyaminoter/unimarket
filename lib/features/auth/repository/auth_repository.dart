@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:unimarket/models/user_model.dart';
 
 /// Auth Repository
@@ -81,7 +82,11 @@ class AuthRepository {
 
       return userModel;
     } on FirebaseAuthException catch (e) {
+      debugPrint('Firebase Auth Register Error: ${e.code} - ${e.message}');
       throw _handleAuthException(e);
+    } catch (e, stack) {
+      debugPrint('General Register Error: $e\n$stack');
+      throw Exception('Kayıt sırasında beklenmeyen bir hata oluştu.');
     }
   }
 
@@ -110,7 +115,11 @@ class AuthRepository {
 
       return userModel;
     } on FirebaseAuthException catch (e) {
+      debugPrint('Firebase Auth Login Error: ${e.code} - ${e.message}');
       throw _handleAuthException(e);
+    } catch (e, stack) {
+      debugPrint('General Login Error: $e\n$stack');
+      throw Exception('Giriş sırasında beklenmeyen bir hata oluştu.');
     }
   }
 
@@ -130,9 +139,24 @@ class AuthRepository {
 
   // ── Kullanıcı Profili Okuma ───────────────────────────────
   /// Firestore'dan kullanıcı profilini döndürür.
+  /// Eğer 'role' alanı yoksa (eski kullanıcı) otomatik olarak 'user' ekler.
   Future<UserModel?> getUserProfile(String uid) async {
     final doc = await _usersCollection.doc(uid).get();
     if (!doc.exists) return null;
+
+    final data = doc.data();
+    // Eski kullanıcılarda role alanı yoksa Firestore'a ekle (Sadece kendi profili ise veya adminse)
+    if (data != null && !data.containsKey('role')) {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null && currentUser.uid == uid) {
+        try {
+          await _usersCollection.doc(uid).update({'role': 'user'});
+        } catch (e) {
+          debugPrint('Role güncellenemedi (normal): $e');
+        }
+      }
+    }
+
     return UserModel.fromFirestore(doc);
   }
 

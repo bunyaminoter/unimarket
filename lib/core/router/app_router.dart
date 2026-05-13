@@ -11,6 +11,10 @@ import 'package:unimarket/features/product/view/my_products_screen.dart';
 import 'package:unimarket/features/product/view/favorites_screen.dart';
 import 'package:unimarket/features/chat/view/chat_list_screen.dart';
 import 'package:unimarket/features/chat/view/chat_detail_screen.dart';
+import 'package:unimarket/features/trade/view/my_offers_screen.dart';
+import 'package:unimarket/features/auction/view/auction_list_screen.dart';
+import 'package:unimarket/features/admin/view/admin_panel_screen.dart';
+import 'package:unimarket/features/notifications/view/notifications_screen.dart';
 import 'package:unimarket/models/product_model.dart';
 import 'package:unimarket/models/user_model.dart';
 
@@ -30,6 +34,10 @@ class AppRoutes {
   static const String productDetail = '/product/:id';
   static const String chatList = '/chat-list';
   static const String chatDetail = '/chat-detail/:chatId';
+  static const String myOffers = '/my-offers';
+  static const String auctions = '/auctions';
+  static const String admin = '/admin';
+  static const String notifications = '/notifications';
 }
 
 /// GoRouter yapılandırması.
@@ -86,6 +94,38 @@ class AppRouter {
                       curve: Curves.easeInOutCubic,
                     ),
                   ),
+              child: child,
+            );
+          },
+        ),
+      ),
+
+      // ── Admin Panel ──────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.admin,
+        name: 'admin',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const AdminPanelScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
+      ),
+
+      // ── Notifications ────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.notifications,
+        name: 'notifications',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const NotificationsScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
               child: child,
             );
           },
@@ -192,6 +232,56 @@ class AppRouter {
               position:
                   Tween<Offset>(
                     begin: const Offset(1.0, 0.0), // Sağdan sola
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                    ),
+                  ),
+              child: child,
+            );
+          },
+        ),
+      ),
+
+      // ── My Offers ──────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.myOffers,
+        name: 'myOffers',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const MyOffersScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position:
+                  Tween<Offset>(
+                    begin: const Offset(1.0, 0.0),
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                    ),
+                  ),
+              child: child,
+            );
+          },
+        ),
+      ),
+
+      // ── Auctions ────────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.auctions,
+        name: 'auctions',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const AuctionListScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position:
+                  Tween<Offset>(
+                    begin: const Offset(1.0, 0.0),
                     end: Offset.zero,
                   ).animate(
                     CurvedAnimation(

@@ -56,17 +56,15 @@ class ProductDetailViewModel extends ChangeNotifier {
     }
   }
 
-  /// Favoriye (kaydedilenlere) ekle çıkar
-  Future<void> toggleFavorite() async {
+  /// Sadece lokal state'teki favori sayısını günceller (UI senkronizasyonu için)
+  void updateLocalFavoriteCount(bool isAdding) {
     if (_product == null) return;
-    try {
-      // Normalde User'ın kendi favori listesinde de tutulmalı (Faz kısıtlamasına göre opsiyonel)
-      // Şimdilik sadece sayacı 1 arttır/azalt simülasyonu yapıyoruz
-      await _repository.updateFavoriteCount(_product!.id, true);
-      _product = _product!.copyWith(favoriteCount: _product!.favoriteCount + 1);
-      notifyListeners();
-    } catch (e) {
-      debugPrint('Favori eklenemedi: $e');
-    }
+    final int currentCount = _product!.favoriteCount;
+    final int newCount = isAdding 
+        ? currentCount + 1 
+        : (currentCount > 0 ? currentCount - 1 : 0);
+        
+    _product = _product!.copyWith(favoriteCount: newCount);
+    notifyListeners();
   }
 }

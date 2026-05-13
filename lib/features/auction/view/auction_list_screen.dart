@@ -1,26 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:unimarket/core/constants/app_colors.dart';
 import 'package:unimarket/core/constants/app_sizes.dart';
-import 'package:unimarket/core/router/app_router.dart';
-import 'package:unimarket/features/product/viewmodel/favorites_viewmodel.dart';
+import 'package:unimarket/features/auction/viewmodel/auction_list_viewmodel.dart';
 import 'package:unimarket/features/product/widgets/product_card.dart';
+import 'package:go_router/go_router.dart';
+import 'package:unimarket/core/router/app_router.dart';
 
-class FavoritesScreen extends StatefulWidget {
-  const FavoritesScreen({super.key});
+/// Açık Artırmalar Sayfası
+///
+/// Sadece açık artırmadaki ürünleri listeler.
+class AuctionListScreen extends StatefulWidget {
+  const AuctionListScreen({super.key});
 
   @override
-  State<FavoritesScreen> createState() => _FavoritesScreenState();
+  State<AuctionListScreen> createState() => _AuctionListScreenState();
 }
 
-class _FavoritesScreenState extends State<FavoritesScreen> {
+class _AuctionListScreenState extends State<AuctionListScreen> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<FavoritesViewModel>().loadFavorites();
+      context.read<AuctionListViewModel>().loadAuctionProducts();
     });
   }
 
@@ -30,14 +33,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          'Beğendiklerim',
+          '🔨 Açık Artırmalar',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
             fontSize: AppSizes.fontLg,
           ),
         ),
       ),
-      body: Consumer<FavoritesViewModel>(
+      body: Consumer<AuctionListViewModel>(
         builder: (context, vm, child) {
           if (vm.isLoading) {
             return const Center(
@@ -45,24 +48,47 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             );
           }
 
-          if (vm.favorites.isEmpty) {
+          if (vm.errorMessage != null) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.favorite_border_rounded,
-                    size: 64,
-                    color: AppColors.textHint,
+                  const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+                  const SizedBox(height: AppSizes.sm),
+                  Text(vm.errorMessage!, style: const TextStyle(color: AppColors.error)),
+                  const SizedBox(height: AppSizes.sm),
+                  ElevatedButton(
+                    onPressed: vm.loadAuctionProducts,
+                    child: const Text('Tekrar Dene'),
                   ),
+                ],
+              ),
+            );
+          }
+
+          if (vm.auctionProducts.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.gavel_rounded, size: 64, color: Colors.grey.shade400),
                   const SizedBox(height: AppSizes.md),
                   Text(
-                    'Henüz bir ilan beğenmedin.',
+                    'Henüz açık artırmada ürün yok.',
                     style: GoogleFonts.poppins(
                       fontSize: AppSizes.fontLg,
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w500,
                     ),
+                  ),
+                  const SizedBox(height: AppSizes.sm),
+                  Text(
+                    'İlan verirken "Açık Artırma" seçeneğini aktif edebilirsiniz.',
+                    style: GoogleFonts.poppins(
+                      fontSize: AppSizes.fontSm,
+                      color: AppColors.textHint,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -70,7 +96,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           }
 
           return RefreshIndicator(
-            onRefresh: vm.loadFavorites,
+            onRefresh: vm.loadAuctionProducts,
             color: AppColors.primary,
             child: GridView.builder(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -81,19 +107,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 crossAxisSpacing: AppSizes.md,
                 childAspectRatio: 0.7,
               ),
-              itemCount: vm.favorites.length,
+              itemCount: vm.auctionProducts.length,
               itemBuilder: (context, index) {
-                final product = vm.favorites[index];
+                final product = vm.auctionProducts[index];
                 return ProductCard(
                   product: product,
                   onTap: () {
-                    context.push(AppRoutes.productDetail, extra: product).then((
-                      _,
-                    ) {
-                      if (context.mounted) {
-                        context.read<FavoritesViewModel>().loadFavorites();
-                      }
-                    });
+                    context.push(
+                      '/product/${product.id}',
+                      extra: product,
+                    );
                   },
                 );
               },

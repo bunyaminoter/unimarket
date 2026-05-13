@@ -14,12 +14,14 @@ class ProductCard extends StatelessWidget {
   final ProductModel product;
   final VoidCallback? onTap;
   final VoidCallback? onFavorite;
+  final bool isFavorite;
 
   const ProductCard({
     super.key,
     required this.product,
     this.onTap,
     this.onFavorite,
+    this.isFavorite = false,
   });
 
   @override
@@ -43,7 +45,7 @@ class ProductCard extends StatelessWidget {
           children: [
             // Ürün Fotoğrafı
             Expanded(
-              child: _ProductImage(product: product, onFavorite: onFavorite),
+              child: _ProductImage(product: product, onFavorite: onFavorite, isFavorite: isFavorite),
             ),
 
             // Ürün Bilgileri
@@ -86,19 +88,61 @@ class ProductCard extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSizes.sm),
 
-                  // Fiyat + Takas rozeti
+                  // Fiyat + Takas/Açık Artırma rozeti
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        product.formattedPrice,
-                        style: GoogleFonts.poppins(
-                          fontSize: AppSizes.fontLg,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primary,
+                      Flexible(
+                        child: Text(
+                          product.isAuction
+                              ? product.formattedHighestBid
+                              : product.formattedPrice,
+                          style: GoogleFonts.poppins(
+                            fontSize: AppSizes.fontLg,
+                            fontWeight: FontWeight.w700,
+                            color: product.isAuction
+                                ? const Color(0xFFFF6B6B)
+                                : AppColors.primary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      if (product.isTradeEligible)
+                      if (product.isAuction)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF6B6B).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(
+                              AppSizes.radiusFull,
+                            ),
+                            border: Border.all(
+                              color: const Color(0xFFFF6B6B).withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.gavel_rounded,
+                                color: Color(0xFFFF6B6B),
+                                size: 12,
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                product.isAuctionActive ? 'Açık Artırma' : 'Bitti',
+                                style: GoogleFonts.poppins(
+                                  fontSize: AppSizes.fontXs,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFFFF6B6B),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else if (product.isTradeEligible)
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 6,
@@ -149,8 +193,9 @@ class ProductCard extends StatelessWidget {
 class _ProductImage extends StatelessWidget {
   final ProductModel product;
   final VoidCallback? onFavorite;
+  final bool isFavorite;
 
-  const _ProductImage({required this.product, this.onFavorite});
+  const _ProductImage({required this.product, this.onFavorite, this.isFavorite = false});
 
   @override
   Widget build(BuildContext context) {
@@ -219,9 +264,9 @@ class _ProductImage extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Icon(
-                  Icons.favorite_border_rounded,
-                  color: AppColors.accent,
+                child: Icon(
+                  isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                  color: isFavorite ? AppColors.error : AppColors.accent,
                   size: 18,
                 ),
               ),

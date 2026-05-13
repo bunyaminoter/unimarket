@@ -37,23 +37,32 @@ class ChatListViewModel extends ChangeNotifier {
     ) async {
       _chats = chatList;
 
-      // Eksik profil bilgilerini getir
-      for (var chat in chatList) {
-        final theOtherGuyId = chat.participants.firstWhere(
-          (p) => p != user.uid,
-          orElse: () => '',
-        );
-        if (theOtherGuyId.isNotEmpty &&
-            !_userCache.containsKey(theOtherGuyId)) {
-          final profile = await _authRepository.getUserProfile(theOtherGuyId);
-          if (profile != null) {
-            _userCache[theOtherGuyId] = profile;
+      try {
+        // Eksik profil bilgilerini getir
+        for (var chat in chatList) {
+          final theOtherGuyId = chat.participants.firstWhere(
+            (p) => p != user.uid,
+            orElse: () => '',
+          );
+          if (theOtherGuyId.isNotEmpty &&
+              !_userCache.containsKey(theOtherGuyId)) {
+            try {
+              final profile = await _authRepository.getUserProfile(theOtherGuyId);
+              if (profile != null) {
+                _userCache[theOtherGuyId] = profile;
+              }
+            } catch (e) {
+              debugPrint("Profil detayı alınamadı ($theOtherGuyId): $e");
+              // Bir profil hatası tüm listeyi bozmasın
+            }
           }
         }
+      } catch (e) {
+        debugPrint("Chat listesi işleme hatası: $e");
+      } finally {
+        _isLoading = false;
+        notifyListeners();
       }
-
-      _isLoading = false;
-      notifyListeners();
     });
   }
 

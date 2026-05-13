@@ -1,7 +1,11 @@
+import 'dart:ui';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:unimarket/app.dart';
+import 'package:unimarket/features/product/model/product_category.dart';
 import 'package:unimarket/firebase_options.dart';
 import 'package:unimarket/services/hive_service.dart';
 
@@ -16,8 +20,28 @@ import 'package:unimarket/services/hive_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Global Hata Yakalayıcı (Flutter Katmanı)
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    debugPrint('=== FATAL FLUTTER ERROR ===');
+    debugPrint(details.exceptionAsString());
+    debugPrint(details.stack?.toString());
+  };
+
+  // Global Hata Yakalayıcı (Platform / Async Katmanı)
+  PlatformDispatcher.instance.onError = (error, stack) {
+    debugPrint('=== FATAL PLATFORM ERROR ===');
+    debugPrint(error.toString());
+    debugPrint(stack.toString());
+    return true; // Hatanın daha fazla yayılmasını önle
+  };
+
   // Hive Başlat (Offline-First cache)
-  await HiveService.init();
+  try {
+    await HiveService.init();
+  } catch (e, stack) {
+    debugPrint("Hive başlatma hatası: $e\n$stack");
+  }
 
   // Firebase başlat (Duplicate App hatasını önlemek için kontrol eklendi)
   try {
@@ -26,8 +50,25 @@ void main() async {
         options: DefaultFirebaseOptions.currentPlatform,
       );
     }
-  } catch (e) {
-    debugPrint("Firebase başlatma hatası: $e");
+    
+    // Uygulama başlarken dinamik kategorileri yükle
+    try {
+      final snap = await FirebaseFirestore.instance.collection('categories').get();
+      if (snap.docs.isNotEmpty) {
+        final dbCats = snap.docs.map((d) => ProductCategory.fromMap(d.data(), d.id)).toList();
+        
+        // Dropdown hatasını önlemek için 'other' kategorisinin var olduğundan emin ol
+        if (!dbCats.any((c) => c.id == 'other')) {
+          dbCats.add(ProductCategory.other);
+        }
+        
+        ProductCategory.values = dbCats;
+      }
+    } catch (_) {}
+  } catch (e, stack) {
+    debugPrint("FATAL ERROR: Firebase başlatma hatası: $e\n$stack");
+    // Firebase initialization başarısızsa uygulama devam etmesin
+    return;
   }
 
   // Status bar stilini ayarla

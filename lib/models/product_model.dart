@@ -24,6 +24,13 @@ import 'package:unimarket/features/product/model/product_category.dart';
 ///   ├── status: string (active/sold/reserved)
 ///   ├── viewCount: int
 ///   ├── favoriteCount: int
+///   ├── isAuction: bool
+///   ├── auctionEndTime: timestamp?
+///   ├── highestBid: double?
+///   ├── highestBidderId: string?
+///   ├── highestBidderName: string?
+///   ├── bidCount: int
+///   ├── auctionEnded: bool
 ///   ├── createdAt: timestamp
 ///   └── updatedAt: timestamp
 /// ```
@@ -44,6 +51,13 @@ class ProductModel extends Equatable {
   final ProductStatus status;
   final int viewCount;
   final int favoriteCount;
+  final bool isAuction;
+  final DateTime? auctionEndTime;
+  final double? highestBid;
+  final String? highestBidderId;
+  final String? highestBidderName;
+  final int bidCount;
+  final bool auctionEnded;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -64,6 +78,13 @@ class ProductModel extends Equatable {
     this.status = ProductStatus.active,
     this.viewCount = 0,
     this.favoriteCount = 0,
+    this.isAuction = false,
+    this.auctionEndTime,
+    this.highestBid,
+    this.highestBidderId,
+    this.highestBidderName,
+    this.bidCount = 0,
+    this.auctionEnded = false,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -87,6 +108,15 @@ class ProductModel extends Equatable {
       status: ProductStatus.fromString(data['status'] ?? 'active'),
       viewCount: data['viewCount'] ?? 0,
       favoriteCount: data['favoriteCount'] ?? 0,
+      isAuction: data['isAuction'] ?? false,
+      auctionEndTime: data['auctionEndTime'] is String
+          ? DateTime.parse(data['auctionEndTime'])
+          : (data['auctionEndTime'] as Timestamp?)?.toDate(),
+      highestBid: (data['highestBid'] as num?)?.toDouble(),
+      highestBidderId: data['highestBidderId'],
+      highestBidderName: data['highestBidderName'],
+      bidCount: data['bidCount'] ?? 0,
+      auctionEnded: data['auctionEnded'] ?? false,
       createdAt: data['createdAt'] is String
           ? DateTime.parse(data['createdAt'])
           : (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
@@ -121,6 +151,13 @@ class ProductModel extends Equatable {
       'status': status.name,
       'viewCount': viewCount,
       'favoriteCount': favoriteCount,
+      'isAuction': isAuction,
+      'auctionEndTime': auctionEndTime?.toIso8601String(),
+      'highestBid': highestBid,
+      'highestBidderId': highestBidderId,
+      'highestBidderName': highestBidderName,
+      'bidCount': bidCount,
+      'auctionEnded': auctionEnded,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -144,6 +181,15 @@ class ProductModel extends Equatable {
       'status': status.name,
       'viewCount': viewCount,
       'favoriteCount': favoriteCount,
+      'isAuction': isAuction,
+      'auctionEndTime': auctionEndTime != null
+          ? Timestamp.fromDate(auctionEndTime!)
+          : null,
+      'highestBid': highestBid,
+      'highestBidderId': highestBidderId,
+      'highestBidderName': highestBidderName,
+      'bidCount': bidCount,
+      'auctionEnded': auctionEnded,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
     };
@@ -167,6 +213,13 @@ class ProductModel extends Equatable {
     ProductStatus? status,
     int? viewCount,
     int? favoriteCount,
+    bool? isAuction,
+    DateTime? auctionEndTime,
+    double? highestBid,
+    String? highestBidderId,
+    String? highestBidderName,
+    int? bidCount,
+    bool? auctionEnded,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -187,6 +240,13 @@ class ProductModel extends Equatable {
       status: status ?? this.status,
       viewCount: viewCount ?? this.viewCount,
       favoriteCount: favoriteCount ?? this.favoriteCount,
+      isAuction: isAuction ?? this.isAuction,
+      auctionEndTime: auctionEndTime ?? this.auctionEndTime,
+      highestBid: highestBid ?? this.highestBid,
+      highestBidderId: highestBidderId ?? this.highestBidderId,
+      highestBidderName: highestBidderName ?? this.highestBidderName,
+      bidCount: bidCount ?? this.bidCount,
+      auctionEnded: auctionEnded ?? this.auctionEnded,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -201,6 +261,29 @@ class ProductModel extends Equatable {
 
   /// Ürünün aktif olup olmadığını kontrol eder.
   bool get isActive => status == ProductStatus.active;
+
+  /// Açık artırma hâlâ devam ediyor mu?
+  bool get isAuctionActive =>
+      isAuction &&
+      !auctionEnded &&
+      auctionEndTime != null &&
+      DateTime.now().isBefore(auctionEndTime!);
+
+  /// Açık artırma kalan süre.
+  Duration get auctionTimeLeft {
+    if (auctionEndTime == null) return Duration.zero;
+    final diff = auctionEndTime!.difference(DateTime.now());
+    return diff.isNegative ? Duration.zero : diff;
+  }
+
+  /// En yüksek teklifi formatlanmış string olarak döndürür.
+  String get formattedHighestBid => highestBid != null
+      ? '₺${highestBid!.toStringAsFixed(highestBid!.truncateToDouble() == highestBid! ? 0 : 2)}'
+      : formattedPrice;
+
+  /// Minimum teklif miktarı (mevcut en yüksek + 1 TL, yoksa taban fiyat).
+  double get minimumBidAmount =>
+      highestBid != null ? highestBid! + 1 : price;
 
   @override
   List<Object?> get props => [
@@ -220,6 +303,13 @@ class ProductModel extends Equatable {
     status,
     viewCount,
     favoriteCount,
+    isAuction,
+    auctionEndTime,
+    highestBid,
+    highestBidderId,
+    highestBidderName,
+    bidCount,
+    auctionEnded,
     createdAt,
     updatedAt,
   ];

@@ -115,6 +115,22 @@ class AppDrawer extends StatelessWidget {
                     context.push(AppRoutes.chatList);
                   },
                 ),
+                _DrawerItem(
+                  icon: Icons.handshake_outlined,
+                  title: 'Tekliflerim',
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push(AppRoutes.myOffers);
+                  },
+                ),
+                _DrawerItem(
+                  icon: Icons.gavel_rounded,
+                  title: 'Açık Artırmalar',
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push(AppRoutes.auctions);
+                  },
+                ),
               ],
             ),
           ),

@@ -1,0 +1,97 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Kullanıcı kendi role bilgisini oku ─────────────────
+    function isAdmin() {
+      return request.auth != null && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'user') == 'admin';
+    }
+
+    // ── Users Koleksiyonu ──────────────────────────────────
+    match /users/{userId} {
+      // Kullanıcıların birbirini görebilmesi gerekir (mesajlaşma, ilan detayları vb.)
+      allow read: if request.auth != null;
+
+      // Yeni kayıt: sadece kendi UID'si ile, role 'user' olmalı
+      allow create: if request.auth != null && 
+                       request.auth.uid == userId &&
+                       request.resource.data.role == 'user';
+
+      // Güncelleme:
+      // - Kullanıcı kendi profilini günceller (role değiştiremez)
+      // - Eski kullanıcılar role alanı ekleyebilir (sadece 'user' olarak)
+      // - Admin herkesin profilini günceller
+      allow update: if request.auth != null && (
+        // Kullanıcı kendi verisini günceller
+        (request.auth.uid == userId && (
+          // role alanı zaten varsa değiştiremesin
+          (resource.data.keys().hasAny(['role']) && 
+           request.resource.data.role == resource.data.role) ||
+          // role alanı yoksa sadece 'user' olarak ekleyebilsin
+          (!resource.data.keys().hasAny(['role']) && 
+           request.resource.data.role == 'user')
+        )) ||
+        // Admin herkesin verisini güncelleyebilir
+        isAdmin()
+      );
+
+      allow delete: if isAdmin();
+
+      // ── Favoriler Alt Koleksiyonu ────────────────────────────
+      match /favorites/{favoriteId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // ── Products Koleksiyonu ───────────────────────────────
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && (
+        request.auth.uid == resource.data.sellerId || isAdmin() ||
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'viewCount', 'favoriteCount', 'highestBid', 'highestBidderId', 
+          'highestBidderName', 'bidCount', 'updatedAt', 'auctionEnded', 'status'
+        ])
+      );
+      allow delete: if request.auth != null && (
+        request.auth.uid == resource.data.sellerId || isAdmin()
+      );
+
+      // Bids alt koleksiyonu
+      match /bids/{bidId} {
+        allow read: if true;
+        allow create: if request.auth != null;
+      }
+    }
+
+    // ── Notifications Koleksiyonu ──────────────────────────
+    match /notifications/{notifId} {
+      allow read: if request.auth != null;
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Chats Koleksiyonu ─────────────────────────────────
+    match /chats/{chatId} {
+      allow read, write: if request.auth != null;
+      
+      match /messages/{messageId} {
+        allow read, write: if request.auth != null;
+      }
+    }
+
+    // ── Trade Offers ──────────────────────────────────────
+    match /trade_offers/{offerId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // ── Categories Koleksiyonu ────────────────────────────
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

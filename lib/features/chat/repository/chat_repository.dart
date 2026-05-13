@@ -18,27 +18,27 @@ class ChatRepository {
     String targetUserId, {
     String? productId,
   }) async {
-    // Sadece currentUserId'nin olduğu odaları al (index gerektirmez, client-side filtreleme yapalım)
     final snapshot = await _chatsCollection
         .where('participants', arrayContains: currentUserId)
         .get();
+
+    String? anyChatId;
 
     for (var doc in snapshot.docs) {
       final data = doc.data();
       final participants = List<String>.from(data['participants'] ?? []);
       if (participants.contains(targetUserId)) {
-        // Eğer ürüne özel sohbeti de daraltmak istiyorsan:
-        if (productId != null) {
-          if (data['productId'] == productId) {
-            return doc
-                .id; // İki kullanıcının o ürünle ilgili spesifik sohbeti bulunduğunda dön
-          }
-        } else {
-          return doc.id; // Herhangi bir sohbeti
+        // Eğer bu ürün için tam eşleşme varsa direkt onu dön
+        if (productId != null && data['productId'] == productId) {
+          return doc.id;
         }
+        // Yoksa, bu iki kişi arasındaki herhangi bir sohbeti aklında tut
+        anyChatId = doc.id;
       }
     }
-    return null;
+    
+    // Eğer ürün eşleşmesi bulunamadıysa ama bu iki kişi arasında zaten bir sohbet varsa onu dön
+    return anyChatId;
   }
 
   /// Aktif kullanıcının tüm sohbetlerini getirir ve lastMessage'yi çözer

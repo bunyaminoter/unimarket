@@ -29,6 +29,7 @@ class AddProductViewModel extends ChangeNotifier {
   ProductCategory _selectedCategory = ProductCategory.other;
   ProductCondition _selectedCondition = ProductCondition.good;
   bool _isTradeEligible = false;
+  bool _isAuction = false;
   bool _isLoading = false;
   double _uploadProgress = 0.0;
   String? _errorMessage;
@@ -43,6 +44,7 @@ class AddProductViewModel extends ChangeNotifier {
   ProductCategory get selectedCategory => _selectedCategory;
   ProductCondition get selectedCondition => _selectedCondition;
   bool get isTradeEligible => _isTradeEligible;
+  bool get isAuction => _isAuction;
   bool get isLoading => _isLoading;
   double get uploadProgress => _uploadProgress;
   String? get errorMessage => _errorMessage;
@@ -97,6 +99,15 @@ class AddProductViewModel extends ChangeNotifier {
 
   void setTradeEligible(bool value) {
     _isTradeEligible = value;
+    notifyListeners();
+  }
+
+  void setAuction(bool value) {
+    _isAuction = value;
+    // Açık artırma aktifken takas kapatılır
+    if (value) {
+      _isTradeEligible = false;
+    }
     notifyListeners();
   }
 
@@ -170,6 +181,10 @@ class AddProductViewModel extends ChangeNotifier {
         isTradeEligible: _isTradeEligible,
         tradeDescription: tradeDescription?.trim(),
         location: location?.trim(),
+        isAuction: _isAuction,
+        auctionEndTime: _isAuction
+            ? now.add(const Duration(hours: 24))
+            : null,
         createdAt: now,
         updatedAt: now,
       );
@@ -198,6 +213,7 @@ class AddProductViewModel extends ChangeNotifier {
     _selectedCategory = ProductCategory.other;
     _selectedCondition = ProductCondition.good;
     _isTradeEligible = false;
+    _isAuction = false;
     _uploadProgress = 0.0;
     _errorMessage = null;
     _suggestedPrice = null;

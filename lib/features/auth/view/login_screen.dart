@@ -68,7 +68,12 @@ class _LoginScreenState extends State<LoginScreen>
     );
 
     if (success && mounted) {
-      context.go(AppRoutes.home);
+      final authVM2 = context.read<AuthViewModel>();
+      if (authVM2.isAdmin) {
+        context.go(AppRoutes.admin);
+      } else {
+        context.go(AppRoutes.home);
+      }
     }
   }
 

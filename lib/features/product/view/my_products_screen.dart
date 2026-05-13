@@ -104,6 +104,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
             onRefresh: vm.loadMyProducts,
             color: AppColors.primary,
             child: GridView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(AppSizes.md),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,

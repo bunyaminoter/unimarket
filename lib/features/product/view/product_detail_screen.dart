@@ -12,8 +12,8 @@ import 'package:unimarket/features/product/view/edit_product_bottom_sheet.dart';
 import 'package:unimarket/models/product_model.dart';
 import 'package:unimarket/models/user_model.dart';
 import 'package:go_router/go_router.dart';
-import 'package:unimarket/core/router/app_router.dart';
 import 'package:unimarket/features/chat/viewmodel/chat_viewmodel.dart';
+import 'package:unimarket/features/auction/view/auction_section_widget.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final ProductModel initialProduct;
@@ -27,6 +27,7 @@ class ProductDetailScreen extends StatefulWidget {
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   late final PageController _pageController;
   int _currentImageIndex = 0;
+  bool _isTogglingFavorite = false;
 
   @override
   void initState() {
@@ -156,9 +157,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     : Icons.favorite_border_rounded,
                 color: isFavorite ? AppColors.error : AppColors.textPrimary,
               ),
-              onPressed: () {
-                favVM.toggleFavorite(product);
-              },
+              onPressed: _isTogglingFavorite 
+                ? null 
+                : () async {
+                  setState(() => _isTogglingFavorite = true);
+                  try {
+                    final currentIsFav = favVM.isFavorite(product.id);
+                    await favVM.toggleFavorite(product);
+                    if (mounted) {
+                      context.read<ProductDetailViewModel>().updateLocalFavoriteCount(!currentIsFav);
+                    }
+                  } finally {
+                    if (mounted) setState(() => _isTogglingFavorite = false);
+                  }
+                },
             );
           },
         ),
@@ -402,6 +414,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
           const SizedBox(height: AppSizes.lg),
 
+          // Açık Artırma Bölümü
+          if (product.isAuction)
+            AuctionSectionWidget(product: product),
+
           // Açıklama
           Text(
             'Açıklama',
@@ -539,9 +555,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             );
 
             if (result == 'deleted' && context.mounted) {
-              Navigator.pop(context); // Detaydan çık
+              Navigator.pop(context);
+            } else if (result == 'sold' && context.mounted) {
+              Navigator.pop(context); // Satıldı — detaydan çık
             } else if (result == true && context.mounted) {
-              // Güncellendiyse (veya detayları manuel sync yapmak gerekebilir, ViewModel şu an auth olmadığı için vs vs)
+              // Güncellendiyse
             }
           },
           icon: const Icon(Icons.edit_outlined),

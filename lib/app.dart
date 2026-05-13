@@ -11,7 +11,12 @@ import 'package:unimarket/features/product/viewmodel/product_detail_viewmodel.da
 import 'package:unimarket/features/product/viewmodel/my_products_viewmodel.dart';
 import 'package:unimarket/features/product/viewmodel/favorites_viewmodel.dart';
 import 'package:unimarket/features/trade/viewmodel/trade_offer_viewmodel.dart';
+import 'package:unimarket/features/trade/viewmodel/my_offers_viewmodel.dart';
 import 'package:unimarket/features/chat/viewmodel/chat_viewmodel.dart';
+import 'package:unimarket/features/auction/viewmodel/auction_viewmodel.dart';
+import 'package:unimarket/features/auction/viewmodel/auction_list_viewmodel.dart';
+import 'package:unimarket/features/admin/viewmodel/admin_viewmodel.dart';
+import 'package:unimarket/features/notifications/viewmodel/notification_viewmodel.dart';
 
 /// UniMarket Ana Uygulama Widget'ı
 ///
@@ -43,6 +48,9 @@ class UniMarketApp extends StatelessWidget {
         // Trade Offer ViewModel
         ChangeNotifierProvider(create: (_) => TradeOfferViewModel()),
 
+        // My Offers ViewModel
+        ChangeNotifierProvider(create: (_) => MyOffersViewModel()),
+
         // My Products ViewModel
         ChangeNotifierProvider(create: (_) => MyProductsViewModel()),
 
@@ -52,6 +60,16 @@ class UniMarketApp extends StatelessWidget {
         // Chat ViewModels
         ChangeNotifierProvider(create: (_) => ChatListViewModel()),
         ChangeNotifierProvider(create: (_) => ChatDetailViewModel()),
+
+        // Auction ViewModel
+        ChangeNotifierProvider(create: (_) => AuctionViewModel()),
+        ChangeNotifierProvider(create: (_) => AuctionListViewModel()),
+
+        // Admin ViewModel
+        ChangeNotifierProvider(create: (_) => AdminViewModel()),
+
+        // Notification ViewModel
+        ChangeNotifierProvider(create: (_) => NotificationViewModel()),
       ],
       child: MaterialApp.router(
         // Uygulama bilgileri

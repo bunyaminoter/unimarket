@@ -67,6 +67,17 @@ class FavoritesViewModel extends ChangeNotifier {
     if (user == null) return;
 
     final isFav = isFavorite(product.id);
+    
+    // Optimistic UI Update (Anlık tepki için hemen listeyi güncelliyoruz)
+    if (isFav) {
+      _favoriteIds.remove(product.id);
+      _favorites.removeWhere((p) => p.id == product.id);
+    } else {
+      _favoriteIds.add(product.id);
+      _favorites.add(product);
+    }
+    notifyListeners();
+
     final docRef = _firestore
         .collection('users')
         .doc(user.uid)
@@ -75,21 +86,25 @@ class FavoritesViewModel extends ChangeNotifier {
 
     try {
       if (isFav) {
-        // Çıkar
+        // Çıkar (Veritabanı İşlemi)
         await docRef.delete();
-        _favoriteIds.remove(product.id);
-        _favorites.removeWhere((p) => p.id == product.id);
         await _repository.updateFavoriteCount(product.id, false);
       } else {
-        // Ekle
+        // Ekle (Veritabanı İşlemi)
         await docRef.set({'addedAt': FieldValue.serverTimestamp()});
-        _favoriteIds.add(product.id);
-        _favorites.add(product);
         await _repository.updateFavoriteCount(product.id, true);
       }
-      notifyListeners();
     } catch (e) {
       debugPrint("Toggle favori hatası: $e");
+      // Hata durumunda işlemi geri al (Revert)
+      if (isFav) {
+        _favoriteIds.add(product.id);
+        _favorites.add(product);
+      } else {
+        _favoriteIds.remove(product.id);
+        _favorites.removeWhere((p) => p.id == product.id);
+      }
+      notifyListeners();
     }
   }
 }

@@ -34,11 +34,33 @@ class TradeRepository {
   Future<List<TradeOfferModel>> getIncomingOffers(String userId) async {
     final snapshot = await _offersCollection
         .where('targetUserId', isEqualTo: userId)
-        .where('status', isEqualTo: 'pending') // Sadece bekleyenler
         .get();
 
-    return snapshot.docs
+    final docs = snapshot.docs
         .map((doc) => TradeOfferModel.fromFirestore(doc))
         .toList();
+    docs.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return docs;
+  }
+
+  /// Gönderilen Teklifleri Listeler (Ben başkasına teklif)
+  Future<List<TradeOfferModel>> getSentOffers(String userId) async {
+    final snapshot = await _offersCollection
+        .where('offererId', isEqualTo: userId)
+        .get();
+
+    final docs = snapshot.docs
+        .map((doc) => TradeOfferModel.fromFirestore(doc))
+        .toList();
+    docs.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return docs;
+  }
+
+  /// Teklif durumunu günceller (kabul / red / iptal)
+  Future<void> updateOfferStatus(String offerId, TradeStatus status) async {
+    await _offersCollection.doc(offerId).update({
+      'status': status.name,
+      'updatedAt': Timestamp.fromDate(DateTime.now()),
+    });
   }
 }

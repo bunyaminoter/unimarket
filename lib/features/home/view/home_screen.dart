@@ -9,6 +9,7 @@ import 'package:unimarket/core/router/app_router.dart';
 import 'package:unimarket/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:unimarket/features/home/viewmodel/home_viewmodel.dart';
 import 'package:unimarket/features/product/model/product_category.dart';
+import 'package:unimarket/features/product/viewmodel/favorites_viewmodel.dart';
 import 'package:unimarket/features/product/widgets/product_card.dart';
 import 'package:unimarket/features/home/widgets/app_drawer.dart';
 
@@ -23,6 +24,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _isSearching = false;
+  bool _isTogglingFavorite = false;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -90,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           IconButton(
             onPressed: () {
-              // Sonraki fazda bildirimler eklenecek
+              context.push(AppRoutes.notifications);
             },
             icon: const Icon(Icons.notifications_outlined),
           ),
@@ -254,16 +256,29 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                       delegate: SliverChildBuilderDelegate((context, index) {
                         final product = homeVM.products[index];
-                        return ProductCard(
-                          product: product,
-                          onTap: () {
-                            context.push(
-                              AppRoutes.productDetail,
-                              extra: product,
+                        return Consumer<FavoritesViewModel>(
+                          builder: (context, favVM, _) {
+                            final isFavorite = favVM.isFavorite(product.id);
+                            return ProductCard(
+                              product: product,
+                              isFavorite: isFavorite,
+                              onTap: () {
+                                context.push(
+                                  AppRoutes.productDetail,
+                                  extra: product,
+                                );
+                              },
+                              onFavorite: _isTogglingFavorite 
+                                ? null 
+                                : () async {
+                                  setState(() => _isTogglingFavorite = true);
+                                  try {
+                                    await favVM.toggleFavorite(product);
+                                  } finally {
+                                    if (mounted) setState(() => _isTogglingFavorite = false);
+                                  }
+                                },
                             );
-                          },
-                          onFavorite: () {
-                            // Sonraki faz: Favoriye ekleme
                           },
                         );
                       }, childCount: homeVM.products.length),
